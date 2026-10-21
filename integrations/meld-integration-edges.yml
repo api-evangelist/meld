@@ -1,0 +1,18 @@
+generated: '2026-10-21'
+method: none
+source:
+- https://zapier.com/apps/meld/integrations
+- https://zapier.com/apps/meld-io/integrations
+- https://n8n.io/integrations/meld/
+- https://composio.dev/toolkits/meld
+- https://monid.ai/tools/meld
+checked:
+- https://composio.dev/toolkits/meld
+- https://monid.ai/tools/meld
+- https://n8n.io/integrations/meld/
+- https://zapier.com/apps/meld-io/integrations
+- https://zapier.com/apps/meld/integrations
+summary: null
+marketplace_apps: []
+edges: []
+templates: []

@@ -1,0 +1,14 @@
+generated: '2026-10-21'
+method: derived
+generator: derive-conformance.py
+source: openapi/ (1 document(s), 5 mutating operations)
+idempotency:
+  scope:
+  - /crypto-order-headless-offramp-create
+  - /crypto-order-headless-onramp-create
+  - /payments-virtual-account-deposit-instructions-create
+  coverage: partial
+  header: X-Idempotency-Key
+  mechanism: request header / body token declared in the OpenAPI
+  evidence: X-Idempotency-Key on 3 of 5 mutating operations
+  verified: derived

@@ -1,23 +1,120 @@
 aid: meld
+
 name: Meld.io
-description: 'Meld.io is a company surfaced via the API Evangelist harvest backlog (source: g2-catalog)
-  and added to the network as a stub for full-pipeline profiling.'
+
+image: https://meld.io/images/meld-icon-wordmark.png
+
+description: 'Meld.io provides a modern data integration platform that enables businesses to connect, transform, and orchestrate data flows across a wide variety of sources and destinations. The platform offers real-time streaming, batch processing, and powerful transformation capabilities, all accessible via a robust RESTful API. Meld.io focuses on security, scalability, and ease of use, allowing developers to build data pipelines quickly while maintaining compliance with industry standards. With extensive documentation, SDKs, and support, Meld.io aims to simplify complex data integration challenges for enterprises of all sizes.'
+
 url: https://raw.githubusercontent.com/api-evangelist/meld/refs/heads/main/apis.yml
+
 x-type: company
+
 x-source: harvest:g2-catalog
-x-tier: stub
-x-tier-reason: harvest
+
+x-tier: profiled
+x-tier-reason: enrichment pass 2026-10-21 (modular-v1; was harvest)
+
 specificationVersion: '0.20'
+
 created: '2026-10-21'
+
 modified: '2026-10-21'
+
 tags:
-- Company
-apis: []
+- Data Integration
+- FinTech
+- API Platform
+- Stablecoin
+- Digital Assets
+- Enterprise
+
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
+
 common:
+- type: AgenticAccess
+  url: agentic-access/meld-agentic-access.yml
+- type: Spectral
+  url: rules/meld-rules.yml
+- type: JSONLD
+  url: json-ld/meld-context.jsonld
+- type: Vocabulary
+  url: vocabulary/meld-vocabulary.yml
+- type: Webhooks
+  url: asyncapi/meld-webhooks.yml
+- type: DataModel
+  url: data-model/meld-data-model.yml
+- type: Idempotency
+  url: conventions/meld-conventions.yml
+- type: Conventions
+  url: conventions/meld-conventions.yml
+- type: Sandbox
+  url: sandbox/meld-sandbox.yml
+- type: Authentication
+  url: authentication/meld-authentication.yml
+- type: Lifecycle
+  url: lifecycle/meld-lifecycle.yml
+- type: ErrorCatalog
+  url: errors/meld-problem-types.yml
+- type: Conformance
+  url: conformance/meld-conformance.yml
+- type: LLMsTxt
+  url: llms/meld-llms.txt
+- type: AgentCard
+  url: a2a/meld-a2a.yml
+- type: WellKnown
+  url: well-known/meld-well-known.yml
+- type: Hosts
+  url: hosts/meld-hosts.yml
+- type: Vendors
+  url: vendors/meld-vendors.yml
+- type: DomainSecurity
+  url: security/meld-domain-security.yml
 - type: Website
-  url: https://meld.io/
+  url: https://www.meld.io/
+- type: DeveloperPortal
+  url: https://www.meld.io/
+- type: Documentation
+  url: https://docs.meld.io/
+- type: APIReference
+  url: https://docs.meld.io/docs/meld-api/
+- type: GettingStarted
+  url: https://docs.meld.io/docs/meld-api/getting-started
+- type: Support
+  url: https://www.meld.io/contact?type=general
+- type: Blog
+  url: https://www.meld.io/blog
+- type: TermsOfService
+  url: https://www.meld.io/policy/terms-of-service
+- type: PrivacyPolicy
+  url: https://www.meld.io/policy/privacy-policy
+- type: Pricing
+  url: https://www.meld.io/partner-application
+
+apis:
+- aid: meld:meld-headless-api
+  name: Meld.io Headless API
+  description: The Headless API from Meld.io — 4 operation(s) for headless.
+  tags:
+  - Headless
+  properties:
+  - type: OpenAPI
+    url: openapi/meld-headless-api-openapi.yml
+- aid: meld:meld-retail-ramp-api
+  name: Meld.io Retail Ramp API
+  description: The Retail Ramp API from Meld.io — 5 operation(s) for retail ramp.
+  tags:
+  - Retail Ramp
+  properties:
+  - type: OpenAPI
+    url: openapi/meld-retail-ramp-api-openapi.yml
+x-enrichment:
+  date: '2026-10-21'
+  status: enriched
+  artifacts_added: 31
+  pass: modular-v1
+  engine: identity=local,contract=local,surfaces=local,docs=local,regulatory=local

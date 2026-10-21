@@ -1,0 +1,43 @@
+# Meld
+
+- [2026-02-03 (227 pages)](https://docs.meld.io/_llms/2026-02-03.txt): Documentation for 2026-02-03.
+- [2025-03-04 (192 pages)](https://docs.meld.io/_llms/2025-03-04.txt): Documentation for 2025-03-04.
+- [2023-12-19 (191 pages)](https://docs.meld.io/_llms/2023-12-19.txt): Documentation for 2023-12-19.
+
+## OpenAPI Specs
+
+- [crypto-20260203](/openapi/crypto-20260203.json)
+- [networkpartner-20260203](/openapi/networkpartner-20260203.json)
+- [banklinking-20260203](/openapi/banklinking-20260203.json)
+- [payments-20260203](/openapi/payments-20260203.json)
+- [customer-20260203](/openapi/customer-20260203.json)
+- [serviceproviders-20260203](/openapi/serviceproviders-20260203.json)
+- [webhooks-20260203](/openapi/webhooks-20260203.json)
+- [beta-20260203](/openapi/beta-20260203.json)
+- [crypto-20250304](/openapi/crypto-20250304.json)
+- [banklinking-20250304](/openapi/banklinking-20250304.json)
+- [payments-20250304](/openapi/payments-20250304.json)
+- [customer-20250304](/openapi/customer-20250304.json)
+- [serviceproviders-20250304](/openapi/serviceproviders-20250304.json)
+- [webhooks-20250304](/openapi/webhooks-20250304.json)
+- [beta-20250304](/openapi/beta-20250304.json)
+- [crypto-20231219](/openapi/crypto-20231219.json)
+- [banklinking-20231219](/openapi/banklinking-20231219.json)
+- [payments-20231219](/openapi/payments-20231219.json)
+- [customer-20231219](/openapi/customer-20231219.json)
+- [serviceproviders-20231219](/openapi/serviceproviders-20231219.json)
+- [webhooks-20231219](/openapi/webhooks-20231219.json)
+- [beta-20231219](/openapi/beta-20231219.json)
+
+> The links below point to documentation indexes. Follow each `/_llms/` index recursively until you reach documentation pages.
+
+## Indexes
+
+- [2026-02-03 (227 pages)](https://docs.meld.io/_llms/2026-02-03.txt): Documentation for 2026-02-03.
+- [2026-02-03 / Documentation (150 pages)](https://docs.meld.io/_llms/2026-02-03/documentation.txt): Documentation for 2026-02-03 / Documentation.
+- [2026-02-03 / API Reference (77 pages)](https://docs.meld.io/_llms/2026-02-03/api-reference.txt): Documentation for 2026-02-03 / API Reference.
+- [2025-03-04 (192 pages)](https://docs.meld.io/_llms/2025-03-04.txt): Documentation for 2025-03-04.
+- [2023-12-19 (191 pages)](https://docs.meld.io/_llms/2023-12-19.txt): Documentation for 2023-12-19.
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

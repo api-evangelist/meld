@@ -1,0 +1,129 @@
+generated: '2026-10-21'
+method: searched
+generator: extract-docs-artifacts.py (local)
+source: https://docs.meld.io/docs/stablecoins/sandbox-guide/test
+sources:
+- https://docs.meld.io/docs/stablecoins/sandbox-guide/test
+- https://docs.meld.io/docs/stablecoins/sandbox-guide
+- https://docs.meld.io/docs/stablecoins/sandbox-guide/headless-testing
+description: Meld.io sandbox testing information
+modes:
+- name: sandbox
+  base_url: https://api-sb.meld.io
+  portal: https://sb.meldcrypto.com
+  how_to_get_access: Obtain a sandbox API key with payment access from the Meld dashboard (requires headless on‑ramps enabled by Meld representative).
+- name: production
+  base_url: https://api.meld.io
+  portal: https://meldcrypto.com
+  how_to_get_access: Obtain a production API key from the Meld dashboard.
+test_values:
+- kind: card
+  value: 4000 0000 0000 0085
+  meaning: Unlimit Visa test card
+- kind: card
+  value: 5100 0000 0000 0065
+  meaning: Unlimit Mastercard test card
+- kind: card
+  value: 4111 1111 1111 1111
+  meaning: Banxa Visa US test card
+- kind: card
+  value: 4111 1111 4555 1142
+  meaning: BTC Direct Visa test card
+- kind: card
+  value: 2222 4000 7000 0005
+  meaning: BTC Direct Mastercard test card
+- kind: card
+  value: 4111 1111 1111 1111
+  meaning: Transak Visa test card
+- kind: card
+  value: 4485 1415 2054 4212
+  meaning: Transak Visa test card
+- kind: ssn
+  value: '000000001'
+  meaning: US SSN for Transak test account
+- kind: pan
+  value: ABCDE1234A
+  meaning: India PAN for Transak test account
+- kind: otp
+  value: '7203'
+  meaning: Banxa sandbox OTP
+- kind: phone
+  value: +91 8660031402
+  meaning: Onramp.Money sandbox phone number
+- kind: passcode
+  value: '112233'
+  meaning: Onramp.Money sandbox passcode
+- kind: wallet_address
+  value: 2N3oefVeg6stiTb5Kh3ozCSkaqmx91FDbsm
+  meaning: BTC testnet wallet address for Transak, Paybis, etc.
+- kind: card
+  value: 4242 4242 4242 4242
+  meaning: Stripe sandbox card number
+- kind: otp
+  value: '000000'
+  meaning: Stripe sandbox OTP / Link one‑time code
+- kind: ssn
+  value: '000000000'
+  meaning: Stripe sandbox KYC SSN
+- kind: address
+  value: address_full_match
+  meaning: Stripe sandbox address line 1 for KYC
+- kind: card
+  value: rw2ciyaNshpHe7bCHo4bRWq6pqqynnWKQg
+  meaning: Topper sandbox token for XRP_XRPLEDGER
+- kind: wallet_tag
+  value: '224333255'
+  meaning: Topper sandbox wallet tag
+- kind: card
+  value: '4921817844445119'
+  meaning: Topper sandbox Visa card
+- kind: card
+  value: 4444 4444 4444 3333
+  meaning: Mercuryo sandbox Visa card (success)
+- kind: card
+  value: 5555 4444 3333 1111
+  meaning: Mercuryo sandbox Visa card (fail)
+- kind: card
+  value: '4929111260419572'
+  meaning: Kryptonim sandbox Visa card
+- kind: card
+  value: 4929 4205 7359 5709
+  meaning: Swapped sandbox Visa card
+- kind: card
+  value: 4111 1111 1111 1111
+  meaning: Banxa headless card test Visa
+- kind: card
+  value: 4242 4242 4242 4242
+  meaning: Banxa headless card test Debit Visa
+- kind: card
+  value: 5252 5252 5252 5258
+  meaning: Banxa headless card test Credit Mastercard
+- kind: card
+  value: 5555 5555 5555 4444
+  meaning: Banxa headless card test Debit Mastercard
+- kind: card
+  value: 4035 5000 0000 0000
+  meaning: Banxa headless card test Visa / Cartes Bancaires
+- kind: card
+  value: 5132 0000 0000 0000
+  meaning: Banxa headless card test Mastercard / Cartes Bancaires
+- kind: card
+  value: 4970 0000 0000 0008
+  meaning: Banxa headless card test Cartes Bancaires
+- kind: card
+  value: 4000 0000 0000 0002
+  meaning: Banxa headless card generic decline
+- kind: card
+  value: 5100 0000 0000 0008
+  meaning: Banxa headless card generic decline
+- kind: card
+  value: 4000 0000 0000 0010
+  meaning: Banxa headless card generic fail
+- kind: card
+  value: 5100 0000 0000 0016
+  meaning: Banxa headless card generic fail
+note: No explicit test‑vs‑live key prefixes or time‑simulation features are documented.
+docs:
+- https://docs.meld.io/docs/stablecoins/sandbox-guide/test
+- https://docs.meld.io/docs/stablecoins/sandbox-guide
+- https://docs.meld.io/docs/stablecoins/sandbox-guide/headless-testing

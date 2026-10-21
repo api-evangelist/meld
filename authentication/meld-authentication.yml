@@ -1,0 +1,17 @@
+generated: '2026-10-21'
+method: searched
+generator: extract-docs-artifacts.py (local)
+source: https://docs.meld.io/docs/stablecoins/sandbox-guide/test
+sources:
+- https://docs.meld.io/docs/stablecoins/sandbox-guide/test
+- https://docs.meld.io/docs/bank-linking/creating-connections/create-a-connect-token
+- https://docs.meld.io/docs/meld-api/getting-started
+- https://docs.meld.io/docs/stablecoins/white-label-api-integration/whitelabel-quickstart
+schemes:
+- type: apiKey
+  name: Authorization
+  evidence: Authentication uses an API key passed in the Authorization header with a BASIC prefix.
+  location: header
+  header: Authorization
+  how_to_obtain: Obtain API key from Meld dashboard (Developer → API Keys) and include as BASIC <key> in the Authorization header.
+docs: https://docs.meld.io/docs/stablecoins/sandbox-guide/test

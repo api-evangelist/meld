@@ -1,0 +1,427 @@
+generated: '2026-10-21'
+method: derived
+generator: derive-vocabulary.py
+source: openapi/crypto-20260203.json
+vocabulary:
+  name: Meld.io Domain Vocabulary
+  description: 'Terms declared by Meld.io''s own API contract: its resource groups, objects and enumerations, with the contract''s definitions.
+    Derived, not authored.'
+  version: '2026-10-21'
+  terms:
+  - term: UpdateWidgetPreferenceRequest
+    definition: 'Object declared by the contract with fields: preferences.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/UpdateWidgetPreferenceRequest
+  - term: WidgetPreferenceResponse
+    definition: 'Object declared by the contract with fields: preferences.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/WidgetPreferenceResponse
+  - term: CryptoCreateCustomerResponse
+    definition: 'Object declared by the contract with fields: customerId, kycStatus.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/CryptoCreateCustomerResponse
+  - term: CustomerName
+    definition: 'Object declared by the contract with fields: firstName, lastName.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/CustomerName
+  - term: KycStatus
+    definition: 'Object declared by the contract with fields: status, verificationUrl.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/KycStatus
+  - term: VirtualAccountDepositInstructionsRequest
+    definition: Request to provision or retrieve standing virtual-account deposit instructions
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/VirtualAccountDepositInstructionsRequest
+  - term: ErrorResponse
+    definition: 'Object declared by the contract with fields: code, errors, message, requestId, serviceProviderDetails, timestamp.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/ErrorResponse
+  - term: AchReceivingBankInformation
+    definition: Receiving bank details for ACH
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/AchReceivingBankInformation
+  - term: MobileMoneyReceivingBankInformation
+    definition: Receiving bank details for mobile money
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/MobileMoneyReceivingBankInformation
+  - term: PixReceivingBankInformation
+    definition: Receiving bank details for PIX
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/PixReceivingBankInformation
+  - term: ReceivingBankInformation
+    definition: 'Object declared by the contract with fields: paymentMethodType.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/ReceivingBankInformation
+  - term: SepaReceivingBankInformation
+    definition: Receiving bank details for SEPA
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/SepaReceivingBankInformation
+  - term: VirtualAccountDepositInstructionsResponse
+    definition: Standing virtual-account deposit instructions
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/VirtualAccountDepositInstructionsResponse
+  - term: AchDetails
+    definition: ACH details
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/AchDetails
+  - term: CardDetails
+    definition: Credit card details
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/CardDetails
+  - term: CardExpiration
+    definition: 'Object declared by the contract with fields: month, year.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/CardExpiration
+  - term: MeldPaymentTokenDetails
+    definition: Meld payment token details
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/MeldPaymentTokenDetails
+  - term: Name
+    definition: 'Object declared by the contract with fields: firstName, lastName.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/Name
+  - term: PaymentMethodDetails
+    definition: '[Details of the payment method used for this transaction](https://docs.meld.io/docs/payment-methods-and-tokenization)'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/PaymentMethodDetails
+  - term: PaymentMethodInput
+    definition: PaymentMethod objects represent your customer's payment instruments
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/PaymentMethodInput
+  - term: PaymentTransactionRequest
+    definition: 'Object declared by the contract with fields: 3ds, capture, customer, customerId, description, externalCustomerId, nonce, paymentMethod,
+      serviceProvider, serviceProviderDetails, sourceAmount, sourceCurrencyCode.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/PaymentTransactionRequest
+  - term: ThreeDeeEssInput
+    definition: 'Object declared by the contract with fields: enabled.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/ThreeDeeEssInput
+  - term: CryptoDetails
+    definition: 'Object declared by the contract with fields: blockchainTransactionId, chainId, institution, networkFee, networkFeeInUsd, offrampDestinationWalletAddress,
+      partnerFee, partnerFeeInUsd, swapFee, swapFeeInUsd, totalFee, totalFeeInUsd. (3 more)'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/CryptoDetails
+  - term: CustomerAddressOutput
+    definition: 'Object declared by the contract with fields: addressDetails, type.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/CustomerAddressOutput
+  - term: CustomerOutput
+    definition: 'Object declared by the contract with fields: accountId, addresses, email, externalId, id, name, phone, serviceProviders, status.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/CustomerOutput
+  - term: MultiFactorAuthorizationStatusOutput
+    definition: 'Object declared by the contract with fields: method, submitted, successful, url.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/MultiFactorAuthorizationStatusOutput
+  - term: PaymentDetails
+    definition: 'Object declared by the contract with fields: authAmount, captureAmount.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/PaymentDetails
+  - term: PaymentTransactionOutput20230401
+    definition: 'Object declared by the contract with fields: accountId, countryCode, createdAt, cryptoDetails, customer, description, destinationAmount,
+      destinationCurrencyCode, externalCustomerId, externalReferenceId, externalSessionId, externalSubaccountCustomerId. (24 more)'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/PaymentTransactionOutput20230401
+  - term: PaymentTransactionResponse20230401
+    definition: 'Object declared by the contract with fields: transaction.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/PaymentTransactionResponse20230401
+  - term: PaymentRefundRequest
+    definition: 'Object declared by the contract with fields: description, reason, sourceAmount.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/PaymentRefundRequest
+  - term: PaymentCaptureRequest
+    definition: 'Object declared by the contract with fields: description, sourceAmount.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/PaymentCaptureRequest
+  - term: PayoutTransactionRequest
+    definition: 'Object declared by the contract with fields: customerId, description, externalCustomerId, paymentMethod, serviceProvider, serviceProviderDetails,
+      sourceAmount, sourceCurrencyCode.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/PayoutTransactionRequest
+  - term: PaymentTokenRequest
+    definition: 'Object declared by the contract with fields: customer, paymentMethod, serviceProviders.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/PaymentTokenRequest
+  - term: PaymentTokenResponse
+    definition: 'Object declared by the contract with fields: meldPaymentMethodTokenId, serviceProviders.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/PaymentTokenResponse
+  - term: ServiceProviderCustomerCreateRequest
+    definition: 'Object declared by the contract with fields: customerId, paymentMethod.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/ServiceProviderCustomerCreateRequest
+  - term: ServiceProviderCustomersCreateBatchRequest
+    definition: 'Object declared by the contract with fields: customers, serviceProvider.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/ServiceProviderCustomersCreateBatchRequest
+  - term: ServiceProviderCustomersCreateBatchResponse
+    definition: 'Object declared by the contract with fields: batchId.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/ServiceProviderCustomersCreateBatchResponse
+  - term: PaymentDetailsRequest
+    definition: 'Object declared by the contract with fields: paymentMethod.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/PaymentDetailsRequest
+  - term: PlaidMigrateAccountResponse
+    definition: The id and token for a Plaid account used in a transfer
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/PlaidMigrateAccountResponse
+  - term: PlaidTransferAccountFields
+    definition: The id and token for a Plaid account used in a transfer
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/PlaidTransferAccountFields
+  - term: RiskAnalysisRequest
+    definition: 'Object declared by the contract with fields: achClass, amount, currencyCode, name, plaidTransferAccountFields, serviceProvider,
+      type.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/RiskAnalysisRequest
+  - term: DecisionRationale
+    definition: 'Object declared by the contract with fields: code, description.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/DecisionRationale
+  - term: Risk
+    definition: 'Object declared by the contract with fields: bankInitiatedReturnScore, customerInitiatedReturnScore, riskLevel.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/Risk
+  - term: RiskAnalysisResponse
+    definition: 'Object declared by the contract with fields: decision, decisionRationale, risk, serviceProvider, serviceProviderTransferAuthorizationId.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/RiskAnalysisResponse
+  - term: ExternalRefundRequest
+    definition: 'Object declared by the contract with fields: serviceProvider, serviceTransactionId, sourceAmount.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/ExternalRefundRequest
+  - term: ExternalImportRequest
+    definition: 'Object declared by the contract with fields: serviceProvider, serviceTransactionId.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/ExternalImportRequest
+  - term: CryptoPurchaseDetails
+    definition: 'Object declared by the contract with fields: blockchainTransactionId, destinationAmount, destinationCurrencyCode, institution,
+      networkFee, networkFeeInUsd, partnerFee, partnerFeeInUsd, totalFee, totalFeeInUsd, transactionFee, transactionFeeInUsd. (1 more)'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/CryptoPurchaseDetails
+  - term: PaymentMethodOutput
+    definition: 'Object declared by the contract with fields: accountId, id, serviceProvider, token.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/PaymentMethodOutput
+  - term: PaymentTransactionOutput
+    definition: 'Object declared by the contract with fields: accountId, authAmount, captureAmount, countryCode, createdAt, cryptoPurchaseDetails,
+      customer, description, destinationAmount, destinationCurrencyCode, destinationWalletAddress, externalCustomerId. (27 more)'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/PaymentTransactionOutput
+  - term: PaymentTransactionResponse
+    definition: 'Object declared by the contract with fields: transaction.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/PaymentTransactionResponse
+  - term: TransactionMultiFactorAuthorizationRequest
+    definition: 'Object declared by the contract with fields: card2faCode, emailCode, smsCode, transactionId.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/TransactionMultiFactorAuthorizationRequest
+  - term: UploadDocumentResponse
+    definition: 'Object declared by the contract with fields: documentId.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/UploadDocumentResponse
+  - term: FiatSessionDataInput
+    definition: Data related to the session
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/FiatSessionDataInput
+  - term: FiatTokenForWidgetRequest
+    definition: 'Object declared by the contract with fields: customer, customerId, externalCustomerId, externalSessionId, sessionData, sessionType.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/FiatTokenForWidgetRequest
+  - term: FiatTransactionSessionDataInput
+    definition: 'Object declared by the contract with fields: transaction.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/FiatTransactionSessionDataInput
+  - term: WidgetCustomerInput
+    definition: 'Object declared by the contract with fields: email.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/WidgetCustomerInput
+  - term: WidgetTransactionInput
+    definition: 'Object declared by the contract with fields: 3ds, description, externalTransactionId, serviceProvider, serviceProviderDetails,
+      sourceAmount, sourceCurrencyCode.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/WidgetTransactionInput
+  - term: FiatSessionTokenResponse
+    definition: 'Object declared by the contract with fields: customerId, externalCustomerId, externalSessionId, id, token.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/FiatSessionTokenResponse
+  - term: KycInfo
+    definition: KYC verification information for token passthrough
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/KycInfo
+  - term: SessionDataInput
+    definition: 'Object declared by the contract with fields: countryCode, destinationCurrencyCode, kycInfo, lockFields, paymentMethodType, redirectFlow,
+      redirectUrl, refundWalletAddress, serviceProvider, sourceAmount, sourceCurrencyCode, walletAddress. (1 more)'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/SessionDataInput
+  - term: SessionTokenForWidgetRequest
+    definition: 'Object declared by the contract with fields: bypassKyc, customerId, externalCustomerId, externalSessionId, externalSubaccountCustomerId,
+      sessionData, subaccountCustomerId.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/SessionTokenForWidgetRequest
+  - term: SessionTokenResponse
+    definition: 'Object declared by the contract with fields: customerId, externalCustomerId, externalSessionId, id, serviceProviderWidgetUrl,
+      token, widgetUrl.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/SessionTokenResponse
+  - term: SessionTokenRequest
+    definition: 'Object declared by the contract with fields: customerId, externalCustomerId, externalSessionId.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/SessionTokenRequest
+  - term: CryptoQuoteRequest
+    definition: 'Object declared by the contract with fields: countryCode, customerId, destinationCurrencyCode, externalCustomerId, paymentMethodType,
+      serviceProviders, sourceAmount, sourceCurrencyCode, subdivision, walletAddress.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/CryptoQuoteRequest
+  - term: CryptoQuote
+    definition: 'Object declared by the contract with fields: countryCode, customerScore, destinationAmount, destinationAmountWithoutFees, destinationCurrencyCode,
+      exchangeRate, fiatAmountWithoutFees, institutionName, isNativeAvailable, lowKyc, networkFee, partnerFee. (8 more)'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/CryptoQuote
+  - term: CryptoQuoteResponse
+    definition: 'Object declared by the contract with fields: quotes.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/CryptoQuoteResponse
+  - term: MercuryoMerchantSessionRequest
+    definition: 'Object declared by the contract with fields: validationURL.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/MercuryoMerchantSessionRequest
+  - term: MercuryoMerchantSessionResponse
+    definition: 'Object declared by the contract with fields: merchantSession.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/MercuryoMerchantSessionResponse
+  - term: BillingAddress
+    definition: 'Object declared by the contract with fields: city, country_code, state_code, street_line_1, street_line_2, zip_code.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/BillingAddress
+  - term: MercuryoNativeApplePayRequest
+    definition: 'Object declared by the contract with fields: address, billing_address, buy_token, email, first_name, ip, last_name, merchant_transaction_id,
+      pay_token.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/MercuryoNativeApplePayRequest
+  - term: MercuryoNativeApplePayResponse
+    definition: 'Object declared by the contract with fields: code, data, message, status.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/MercuryoNativeApplePayResponse
+  - term: ResponseData
+    definition: 'Object declared by the contract with fields: address, amount, currency, fiat_amount, fiatcurrency, id, payment_status, reason,
+      redirect_url, status, transaction.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/ResponseData
+  - term: Transaction
+    definition: 'Object declared by the contract with fields: id.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/Transaction
+  - term: WidgetEventRequest
+    definition: 'Object declared by the contract with fields: serviceProvider, serviceProviderEventId, serviceProviderEventPayload, serviceProviderEventType.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/WidgetEventRequest
+  - term: CryptoDcaInfoRequest
+    definition: 'Object declared by the contract with fields: cryptoCurrency, currencyCode, serviceProvider, serviceProviderCustomerId, walletAddress.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/CryptoDcaInfoRequest
+  - term: CryptoDcaInfoResponse
+    definition: 'Object declared by the contract with fields: bic, description, iban, name.'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/CryptoDcaInfoResponse
+  - term: HeadlessOrderOnrampRequest
+    definition: Request to create a headless onramp order
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/HeadlessOrderOnrampRequest
+  - term: ProviderData
+    definition: Provider-specific extension keyed by serviceProvider
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/ProviderData
+  - term: YellowcardData
+    definition: Yellowcard-specific provider data
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/YellowcardData
+  - term: ApplePayOrder
+    definition: 'Apple Pay response — present when paymentMethodType == APPLE_PAY. Native (non-widget) flow: the caller renders the Apple Pay
+      sheet on its own surface, then drives the existing session-token endpoints (GET /crypto/session/applepay/paymentsession, POST /crypto/session/mercuryo/apple-pay/validate-merchant,
+      POST /crypto/session/mercuryo/apple-pay/process) authenticated with sessionToken. There is no p'
+    tags:
+    - Object
+    source: openapi/crypto-20260203.json#/components/schemas/ApplePayOrder

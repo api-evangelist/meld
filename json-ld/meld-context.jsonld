@@ -1,0 +1,982 @@
+{
+  "@context": {
+    "@vocab": "https://meld.io/schema#",
+    "schema": "https://schema.org/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "dcterms": "http://purl.org/dc/terms/",
+    "meld": "https://meld.io/schema#",
+    "UpdateWidgetPreferenceRequest": "meld:UpdateWidgetPreferenceRequest",
+    "preferences": {
+      "@id": "meld:preferences"
+    },
+    "WidgetPreferenceResponse": "meld:WidgetPreferenceResponse",
+    "CryptoCreateCustomerResponse": "meld:CryptoCreateCustomerResponse",
+    "customerId": {
+      "@id": "meld:customerId",
+      "@type": "xsd:string"
+    },
+    "kycStatus": {
+      "@id": "meld:kycStatus"
+    },
+    "CustomerName": "meld:CustomerName",
+    "firstName": {
+      "@id": "meld:firstName",
+      "@type": "xsd:string"
+    },
+    "lastName": {
+      "@id": "meld:lastName",
+      "@type": "xsd:string"
+    },
+    "KycStatus": "meld:KycStatus",
+    "status": {
+      "@id": "meld:status",
+      "@type": "xsd:string"
+    },
+    "verificationUrl": {
+      "@id": "meld:verificationUrl",
+      "@type": "xsd:string"
+    },
+    "VirtualAccountDepositInstructionsRequest": "meld:VirtualAccountDepositInstructionsRequest",
+    "customerPhoneNumber": {
+      "@id": "meld:customerPhoneNumber",
+      "@type": "xsd:string"
+    },
+    "destinationCurrencyCode": {
+      "@id": "meld:destinationCurrencyCode",
+      "@type": "xsd:string"
+    },
+    "destinationWalletAddress": {
+      "@id": "meld:destinationWalletAddress",
+      "@type": "xsd:string"
+    },
+    "paymentMethodType": {
+      "@id": "meld:paymentMethodType",
+      "@type": "xsd:string"
+    },
+    "serviceProvider": {
+      "@id": "meld:serviceProvider",
+      "@type": "xsd:string"
+    },
+    "sourceCurrencyCode": {
+      "@id": "meld:sourceCurrencyCode",
+      "@type": "xsd:string"
+    },
+    "ErrorResponse": "meld:ErrorResponse",
+    "code": {
+      "@id": "meld:code",
+      "@type": "xsd:string"
+    },
+    "errors": {
+      "@id": "meld:errors",
+      "@container": "@list"
+    },
+    "message": {
+      "@id": "meld:message",
+      "@type": "xsd:string"
+    },
+    "requestId": {
+      "@id": "meld:requestId",
+      "@type": "xsd:string"
+    },
+    "serviceProviderDetails": {
+      "@id": "meld:serviceProviderDetails"
+    },
+    "timestamp": {
+      "@id": "meld:timestamp",
+      "@type": "xsd:dateTime"
+    },
+    "ReceivingBankInformation": "meld:ReceivingBankInformation",
+    "VirtualAccountDepositInstructionsResponse": "meld:VirtualAccountDepositInstructionsResponse",
+    "depositInstructionsId": {
+      "@id": "meld:depositInstructionsId",
+      "@type": "xsd:string"
+    },
+    "receivingBankInformation": {
+      "@id": "meld:receivingBankInformation"
+    },
+    "AchDetails": "meld:AchDetails",
+    "accountNumber": {
+      "@id": "meld:accountNumber",
+      "@type": "xsd:string"
+    },
+    "accountType": {
+      "@id": "meld:accountType",
+      "@type": "xsd:string"
+    },
+    "name": {
+      "@id": "meld:name"
+    },
+    "routingNumber": {
+      "@id": "meld:routingNumber",
+      "@type": "xsd:string"
+    },
+    "CardDetails": "meld:CardDetails",
+    "cvc": {
+      "@id": "meld:cvc",
+      "@type": "xsd:string"
+    },
+    "expiration": {
+      "@id": "meld:expiration"
+    },
+    "number": {
+      "@id": "meld:number",
+      "@type": "xsd:string"
+    },
+    "CardExpiration": "meld:CardExpiration",
+    "month": {
+      "@id": "meld:month",
+      "@type": "xsd:integer"
+    },
+    "year": {
+      "@id": "meld:year",
+      "@type": "xsd:integer"
+    },
+    "MeldPaymentTokenDetails": "meld:MeldPaymentTokenDetails",
+    "meldPaymentToken": {
+      "@id": "meld:meldPaymentToken",
+      "@type": "xsd:string"
+    },
+    "Name": "meld:Name",
+    "PaymentMethodInput": "meld:PaymentMethodInput",
+    "details": {
+      "@id": "meld:details",
+      "@type": "@id"
+    },
+    "type": {
+      "@id": "meld:type",
+      "@type": "xsd:string"
+    },
+    "PaymentTransactionRequest": "meld:PaymentTransactionRequest",
+    "capture": {
+      "@id": "meld:capture",
+      "@type": "xsd:boolean"
+    },
+    "customer": {
+      "@id": "meld:customer"
+    },
+    "description": {
+      "@id": "meld:description",
+      "@type": "xsd:string"
+    },
+    "externalCustomerId": {
+      "@id": "meld:externalCustomerId",
+      "@type": "xsd:string"
+    },
+    "nonce": {
+      "@id": "meld:nonce",
+      "@type": "xsd:string"
+    },
+    "paymentMethod": {
+      "@id": "meld:paymentMethod"
+    },
+    "sourceAmount": {
+      "@id": "meld:sourceAmount",
+      "@type": "xsd:string"
+    },
+    "ThreeDeeEssInput": "meld:ThreeDeeEssInput",
+    "enabled": {
+      "@id": "meld:enabled",
+      "@type": "xsd:boolean"
+    },
+    "CryptoDetails": "meld:CryptoDetails",
+    "blockchainTransactionId": {
+      "@id": "meld:blockchainTransactionId",
+      "@type": "xsd:string"
+    },
+    "chainId": {
+      "@id": "meld:chainId",
+      "@type": "xsd:string"
+    },
+    "institution": {
+      "@id": "meld:institution",
+      "@type": "xsd:string"
+    },
+    "networkFee": {
+      "@id": "meld:networkFee",
+      "@type": "xsd:decimal"
+    },
+    "networkFeeInUsd": {
+      "@id": "meld:networkFeeInUsd",
+      "@type": "xsd:decimal"
+    },
+    "offrampDestinationWalletAddress": {
+      "@id": "meld:offrampDestinationWalletAddress",
+      "@type": "xsd:string"
+    },
+    "partnerFee": {
+      "@id": "meld:partnerFee",
+      "@type": "xsd:decimal"
+    },
+    "partnerFeeInUsd": {
+      "@id": "meld:partnerFeeInUsd",
+      "@type": "xsd:decimal"
+    },
+    "swapFee": {
+      "@id": "meld:swapFee",
+      "@type": "xsd:decimal"
+    },
+    "swapFeeInUsd": {
+      "@id": "meld:swapFeeInUsd",
+      "@type": "xsd:decimal"
+    },
+    "totalFee": {
+      "@id": "meld:totalFee",
+      "@type": "xsd:decimal"
+    },
+    "totalFeeInUsd": {
+      "@id": "meld:totalFeeInUsd",
+      "@type": "xsd:decimal"
+    },
+    "transactionFee": {
+      "@id": "meld:transactionFee",
+      "@type": "xsd:decimal"
+    },
+    "transactionFeeInUsd": {
+      "@id": "meld:transactionFeeInUsd",
+      "@type": "xsd:decimal"
+    },
+    "walletAddress": {
+      "@id": "meld:walletAddress",
+      "@type": "xsd:string"
+    },
+    "CustomerAddressOutput": "meld:CustomerAddressOutput",
+    "addressDetails": {
+      "@id": "meld:addressDetails"
+    },
+    "CustomerOutput": "meld:CustomerOutput",
+    "accountId": {
+      "@id": "meld:accountId",
+      "@type": "xsd:string"
+    },
+    "addresses": {
+      "@id": "meld:addresses",
+      "@container": "@list"
+    },
+    "email": {
+      "@id": "meld:email",
+      "@type": "xsd:string"
+    },
+    "externalId": {
+      "@id": "meld:externalId",
+      "@type": "xsd:string"
+    },
+    "id": {
+      "@id": "meld:id",
+      "@type": "xsd:string"
+    },
+    "phone": {
+      "@id": "meld:phone",
+      "@type": "xsd:string"
+    },
+    "serviceProviders": {
+      "@id": "meld:serviceProviders"
+    },
+    "MultiFactorAuthorizationStatusOutput": "meld:MultiFactorAuthorizationStatusOutput",
+    "method": {
+      "@id": "meld:method",
+      "@type": "xsd:string"
+    },
+    "submitted": {
+      "@id": "meld:submitted",
+      "@type": "xsd:boolean"
+    },
+    "successful": {
+      "@id": "meld:successful",
+      "@type": "xsd:boolean"
+    },
+    "url": {
+      "@id": "meld:url",
+      "@type": "xsd:string"
+    },
+    "PaymentDetails": "meld:PaymentDetails",
+    "authAmount": {
+      "@id": "meld:authAmount",
+      "@type": "xsd:decimal"
+    },
+    "captureAmount": {
+      "@id": "meld:captureAmount",
+      "@type": "xsd:decimal"
+    },
+    "PaymentTransactionOutput20230401": "meld:PaymentTransactionOutput20230401",
+    "countryCode": {
+      "@id": "meld:countryCode",
+      "@type": "xsd:string"
+    },
+    "createdAt": {
+      "@id": "meld:createdAt",
+      "@type": "xsd:dateTime"
+    },
+    "cryptoDetails": {
+      "@id": "meld:cryptoDetails"
+    },
+    "destinationAmount": {
+      "@id": "meld:destinationAmount",
+      "@type": "xsd:decimal"
+    },
+    "externalReferenceId": {
+      "@id": "meld:externalReferenceId",
+      "@type": "xsd:string"
+    },
+    "externalSessionId": {
+      "@id": "meld:externalSessionId",
+      "@type": "xsd:string"
+    },
+    "externalSubaccountCustomerId": {
+      "@id": "meld:externalSubaccountCustomerId",
+      "@type": "xsd:string"
+    },
+    "fiatAmountInUsd": {
+      "@id": "meld:fiatAmountInUsd",
+      "@type": "xsd:decimal"
+    },
+    "isImported": {
+      "@id": "meld:isImported",
+      "@type": "xsd:boolean"
+    },
+    "isPassthrough": {
+      "@id": "meld:isPassthrough",
+      "@type": "xsd:boolean"
+    },
+    "key": {
+      "@id": "meld:key",
+      "@type": "xsd:string"
+    },
+    "multiFactorAuthorizationStatus": {
+      "@id": "meld:multiFactorAuthorizationStatus",
+      "@container": "@list"
+    },
+    "orderId": {
+      "@id": "meld:orderId",
+      "@type": "xsd:string"
+    },
+    "parentPaymentTransactionId": {
+      "@id": "meld:parentPaymentTransactionId",
+      "@type": "xsd:string"
+    },
+    "passthroughReference": {
+      "@id": "meld:passthroughReference",
+      "@type": "xsd:string"
+    },
+    "paymentDetails": {
+      "@id": "meld:paymentDetails"
+    },
+    "serviceProviderCreatedAt": {
+      "@id": "meld:serviceProviderCreatedAt",
+      "@type": "xsd:dateTime"
+    },
+    "serviceProviderTransactionUrl": {
+      "@id": "meld:serviceProviderTransactionUrl",
+      "@type": "xsd:string"
+    },
+    "serviceTransactionId": {
+      "@id": "meld:serviceTransactionId",
+      "@type": "xsd:string"
+    },
+    "sessionClientTags": {
+      "@id": "meld:sessionClientTags"
+    },
+    "sessionId": {
+      "@id": "meld:sessionId",
+      "@type": "xsd:string"
+    },
+    "subaccountCustomerId": {
+      "@id": "meld:subaccountCustomerId",
+      "@type": "xsd:string"
+    },
+    "transactionType": {
+      "@id": "meld:transactionType",
+      "@type": "xsd:string"
+    },
+    "updatedAt": {
+      "@id": "meld:updatedAt",
+      "@type": "xsd:dateTime"
+    },
+    "PaymentTransactionResponse20230401": "meld:PaymentTransactionResponse20230401",
+    "transaction": {
+      "@id": "meld:transaction"
+    },
+    "PaymentRefundRequest": "meld:PaymentRefundRequest",
+    "reason": {
+      "@id": "meld:reason",
+      "@type": "xsd:string"
+    },
+    "PaymentCaptureRequest": "meld:PaymentCaptureRequest",
+    "PayoutTransactionRequest": "meld:PayoutTransactionRequest",
+    "PaymentTokenRequest": "meld:PaymentTokenRequest",
+    "PaymentTokenResponse": "meld:PaymentTokenResponse",
+    "meldPaymentMethodTokenId": {
+      "@id": "meld:meldPaymentMethodTokenId",
+      "@type": "xsd:string"
+    },
+    "ServiceProviderCustomerCreateRequest": "meld:ServiceProviderCustomerCreateRequest",
+    "ServiceProviderCustomersCreateBatchRequest": "meld:ServiceProviderCustomersCreateBatchRequest",
+    "customers": {
+      "@id": "meld:customers",
+      "@container": "@list"
+    },
+    "ServiceProviderCustomersCreateBatchResponse": "meld:ServiceProviderCustomersCreateBatchResponse",
+    "batchId": {
+      "@id": "meld:batchId",
+      "@type": "xsd:string"
+    },
+    "PaymentDetailsRequest": "meld:PaymentDetailsRequest",
+    "PlaidMigrateAccountResponse": "meld:PlaidMigrateAccountResponse",
+    "accessToken": {
+      "@id": "meld:accessToken",
+      "@type": "xsd:string"
+    },
+    "PlaidTransferAccountFields": "meld:PlaidTransferAccountFields",
+    "RiskAnalysisRequest": "meld:RiskAnalysisRequest",
+    "achClass": {
+      "@id": "meld:achClass",
+      "@type": "xsd:string"
+    },
+    "amount": {
+      "@id": "meld:amount",
+      "@type": "xsd:decimal"
+    },
+    "currencyCode": {
+      "@id": "meld:currencyCode",
+      "@type": "xsd:string"
+    },
+    "plaidTransferAccountFields": {
+      "@id": "meld:plaidTransferAccountFields"
+    },
+    "DecisionRationale": "meld:DecisionRationale",
+    "Risk": "meld:Risk",
+    "bankInitiatedReturnScore": {
+      "@id": "meld:bankInitiatedReturnScore",
+      "@type": "xsd:integer"
+    },
+    "customerInitiatedReturnScore": {
+      "@id": "meld:customerInitiatedReturnScore",
+      "@type": "xsd:integer"
+    },
+    "riskLevel": {
+      "@id": "meld:riskLevel",
+      "@type": "xsd:string"
+    },
+    "RiskAnalysisResponse": "meld:RiskAnalysisResponse",
+    "decision": {
+      "@id": "meld:decision",
+      "@type": "xsd:string"
+    },
+    "decisionRationale": {
+      "@id": "meld:decisionRationale",
+      "@type": "@id"
+    },
+    "risk": {
+      "@id": "meld:risk",
+      "@type": "@id"
+    },
+    "serviceProviderTransferAuthorizationId": {
+      "@id": "meld:serviceProviderTransferAuthorizationId",
+      "@type": "xsd:string"
+    },
+    "ExternalRefundRequest": "meld:ExternalRefundRequest",
+    "ExternalImportRequest": "meld:ExternalImportRequest",
+    "CryptoPurchaseDetails": "meld:CryptoPurchaseDetails",
+    "PaymentMethodOutput": "meld:PaymentMethodOutput",
+    "token": {
+      "@id": "meld:token",
+      "@type": "xsd:string"
+    },
+    "PaymentTransactionOutput": "meld:PaymentTransactionOutput",
+    "cryptoPurchaseDetails": {
+      "@id": "meld:cryptoPurchaseDetails"
+    },
+    "sourceAmountInUsd": {
+      "@id": "meld:sourceAmountInUsd",
+      "@type": "xsd:decimal"
+    },
+    "sourceWalletAddress": {
+      "@id": "meld:sourceWalletAddress",
+      "@type": "xsd:string"
+    },
+    "wallet": {
+      "@id": "meld:wallet",
+      "@type": "xsd:string"
+    },
+    "PaymentTransactionResponse": "meld:PaymentTransactionResponse",
+    "TransactionMultiFactorAuthorizationRequest": "meld:TransactionMultiFactorAuthorizationRequest",
+    "card2faCode": {
+      "@id": "meld:card2faCode",
+      "@type": "xsd:string"
+    },
+    "emailCode": {
+      "@id": "meld:emailCode",
+      "@type": "xsd:string"
+    },
+    "smsCode": {
+      "@id": "meld:smsCode",
+      "@type": "xsd:string"
+    },
+    "transactionId": {
+      "@id": "meld:transactionId",
+      "@type": "xsd:string"
+    },
+    "UploadDocumentResponse": "meld:UploadDocumentResponse",
+    "documentId": {
+      "@id": "meld:documentId",
+      "@type": "xsd:string"
+    },
+    "FiatTokenForWidgetRequest": "meld:FiatTokenForWidgetRequest",
+    "sessionData": {
+      "@id": "meld:sessionData"
+    },
+    "sessionType": {
+      "@id": "meld:sessionType",
+      "@type": "xsd:string"
+    },
+    "FiatTransactionSessionDataInput": "meld:FiatTransactionSessionDataInput",
+    "WidgetCustomerInput": "meld:WidgetCustomerInput",
+    "WidgetTransactionInput": "meld:WidgetTransactionInput",
+    "externalTransactionId": {
+      "@id": "meld:externalTransactionId",
+      "@type": "xsd:string"
+    },
+    "FiatSessionTokenResponse": "meld:FiatSessionTokenResponse",
+    "KycInfo": "meld:KycInfo",
+    "kycProvider": {
+      "@id": "meld:kycProvider",
+      "@type": "xsd:string"
+    },
+    "kycShareToken": {
+      "@id": "meld:kycShareToken",
+      "@type": "xsd:string"
+    },
+    "SessionDataInput": "meld:SessionDataInput",
+    "kycInfo": {
+      "@id": "meld:kycInfo"
+    },
+    "lockFields": {
+      "@id": "meld:lockFields",
+      "@container": "@list"
+    },
+    "redirectFlow": {
+      "@id": "meld:redirectFlow",
+      "@type": "xsd:boolean"
+    },
+    "redirectUrl": {
+      "@id": "meld:redirectUrl",
+      "@type": "xsd:string"
+    },
+    "refundWalletAddress": {
+      "@id": "meld:refundWalletAddress",
+      "@type": "xsd:string"
+    },
+    "walletTag": {
+      "@id": "meld:walletTag",
+      "@type": "xsd:string"
+    },
+    "SessionTokenForWidgetRequest": "meld:SessionTokenForWidgetRequest",
+    "bypassKyc": {
+      "@id": "meld:bypassKyc",
+      "@type": "xsd:boolean"
+    },
+    "SessionTokenResponse": "meld:SessionTokenResponse",
+    "serviceProviderWidgetUrl": {
+      "@id": "meld:serviceProviderWidgetUrl",
+      "@type": "xsd:string"
+    },
+    "widgetUrl": {
+      "@id": "meld:widgetUrl",
+      "@type": "xsd:string"
+    },
+    "SessionTokenRequest": "meld:SessionTokenRequest",
+    "CryptoQuoteRequest": "meld:CryptoQuoteRequest",
+    "subdivision": {
+      "@id": "meld:subdivision",
+      "@type": "xsd:string"
+    },
+    "CryptoQuote": "meld:CryptoQuote",
+    "customerScore": {
+      "@id": "meld:customerScore",
+      "@type": "xsd:decimal"
+    },
+    "destinationAmountWithoutFees": {
+      "@id": "meld:destinationAmountWithoutFees",
+      "@type": "xsd:decimal"
+    },
+    "exchangeRate": {
+      "@id": "meld:exchangeRate",
+      "@type": "xsd:decimal"
+    },
+    "fiatAmountWithoutFees": {
+      "@id": "meld:fiatAmountWithoutFees",
+      "@type": "xsd:decimal"
+    },
+    "institutionName": {
+      "@id": "meld:institutionName",
+      "@type": "xsd:string"
+    },
+    "isNativeAvailable": {
+      "@id": "meld:isNativeAvailable",
+      "@type": "xsd:boolean"
+    },
+    "lowKyc": {
+      "@id": "meld:lowKyc",
+      "@type": "xsd:boolean"
+    },
+    "sourceAmountWithoutFees": {
+      "@id": "meld:sourceAmountWithoutFees",
+      "@type": "xsd:decimal"
+    },
+    "CryptoQuoteResponse": "meld:CryptoQuoteResponse",
+    "quotes": {
+      "@id": "meld:quotes",
+      "@container": "@list"
+    },
+    "MercuryoMerchantSessionRequest": "meld:MercuryoMerchantSessionRequest",
+    "validationURL": {
+      "@id": "meld:validationURL",
+      "@type": "xsd:string"
+    },
+    "MercuryoMerchantSessionResponse": "meld:MercuryoMerchantSessionResponse",
+    "merchantSession": {
+      "@id": "meld:merchantSession"
+    },
+    "BillingAddress": "meld:BillingAddress",
+    "city": {
+      "@id": "meld:city",
+      "@type": "xsd:string"
+    },
+    "country_code": {
+      "@id": "meld:country_code",
+      "@type": "xsd:string"
+    },
+    "state_code": {
+      "@id": "meld:state_code",
+      "@type": "xsd:string"
+    },
+    "street_line_1": {
+      "@id": "meld:street_line_1",
+      "@type": "xsd:string"
+    },
+    "street_line_2": {
+      "@id": "meld:street_line_2",
+      "@type": "xsd:string"
+    },
+    "zip_code": {
+      "@id": "meld:zip_code",
+      "@type": "xsd:string"
+    },
+    "MercuryoNativeApplePayRequest": "meld:MercuryoNativeApplePayRequest",
+    "address": {
+      "@id": "meld:address",
+      "@type": "xsd:string"
+    },
+    "billing_address": {
+      "@id": "meld:billing_address",
+      "@type": "@id"
+    },
+    "buy_token": {
+      "@id": "meld:buy_token",
+      "@type": "xsd:string"
+    },
+    "first_name": {
+      "@id": "meld:first_name",
+      "@type": "xsd:string"
+    },
+    "ip": {
+      "@id": "meld:ip",
+      "@type": "xsd:string"
+    },
+    "last_name": {
+      "@id": "meld:last_name",
+      "@type": "xsd:string"
+    },
+    "merchant_transaction_id": {
+      "@id": "meld:merchant_transaction_id",
+      "@type": "xsd:string"
+    },
+    "pay_token": {
+      "@id": "meld:pay_token",
+      "@type": "xsd:string"
+    },
+    "MercuryoNativeApplePayResponse": "meld:MercuryoNativeApplePayResponse",
+    "data": {
+      "@id": "meld:data",
+      "@type": "@id"
+    },
+    "ResponseData": "meld:ResponseData",
+    "currency": {
+      "@id": "meld:currency",
+      "@type": "xsd:string"
+    },
+    "fiat_amount": {
+      "@id": "meld:fiat_amount",
+      "@type": "xsd:string"
+    },
+    "fiatcurrency": {
+      "@id": "meld:fiatcurrency",
+      "@type": "xsd:string"
+    },
+    "payment_status": {
+      "@id": "meld:payment_status",
+      "@type": "xsd:string"
+    },
+    "redirect_url": {
+      "@id": "meld:redirect_url",
+      "@type": "xsd:string"
+    },
+    "Transaction": "meld:Transaction",
+    "WidgetEventRequest": "meld:WidgetEventRequest",
+    "serviceProviderEventId": {
+      "@id": "meld:serviceProviderEventId",
+      "@type": "xsd:string"
+    },
+    "serviceProviderEventPayload": {
+      "@id": "meld:serviceProviderEventPayload"
+    },
+    "serviceProviderEventType": {
+      "@id": "meld:serviceProviderEventType",
+      "@type": "xsd:string"
+    },
+    "CryptoDcaInfoRequest": "meld:CryptoDcaInfoRequest",
+    "cryptoCurrency": {
+      "@id": "meld:cryptoCurrency",
+      "@type": "xsd:string"
+    },
+    "serviceProviderCustomerId": {
+      "@id": "meld:serviceProviderCustomerId",
+      "@type": "xsd:string"
+    },
+    "CryptoDcaInfoResponse": "meld:CryptoDcaInfoResponse",
+    "bic": {
+      "@id": "meld:bic",
+      "@type": "xsd:string"
+    },
+    "iban": {
+      "@id": "meld:iban",
+      "@type": "xsd:string"
+    },
+    "HeadlessOrderOnrampRequest": "meld:HeadlessOrderOnrampRequest",
+    "clientIpAddress": {
+      "@id": "meld:clientIpAddress",
+      "@type": "xsd:string"
+    },
+    "externalOrderId": {
+      "@id": "meld:externalOrderId",
+      "@type": "xsd:string"
+    },
+    "providerData": {
+      "@id": "meld:providerData"
+    },
+    "ProviderData": "meld:ProviderData",
+    "HeadlessOrderOnrampResponse": "meld:HeadlessOrderOnrampResponse",
+    "payload": {
+      "@id": "meld:payload"
+    },
+    "paymentMethodResponseDetails": {
+      "@id": "meld:paymentMethodResponseDetails"
+    },
+    "RequestPayload": "meld:RequestPayload",
+    "Address": "meld:Address",
+    "country": {
+      "@id": "meld:country",
+      "@type": "xsd:string"
+    },
+    "postalCode": {
+      "@id": "meld:postalCode",
+      "@type": "xsd:string"
+    },
+    "state": {
+      "@id": "meld:state",
+      "@type": "xsd:string"
+    },
+    "streetLineOne": {
+      "@id": "meld:streetLineOne",
+      "@type": "xsd:string"
+    },
+    "streetLineTwo": {
+      "@id": "meld:streetLineTwo",
+      "@type": "xsd:string"
+    },
+    "FiatPayoutMethod": "meld:FiatPayoutMethod",
+    "owner": {
+      "@id": "meld:owner",
+      "@type": "xsd:string"
+    },
+    "HeadlessOrderOfframpRequest": "meld:HeadlessOrderOfframpRequest",
+    "fiatPayoutMethod": {
+      "@id": "meld:fiatPayoutMethod"
+    },
+    "HeadlessOrderOfframpResponse": "meld:HeadlessOrderOfframpResponse",
+    "TokenSessionAuthResponse": "meld:TokenSessionAuthResponse",
+    "customerServiceProviderAuthId": {
+      "@id": "meld:customerServiceProviderAuthId",
+      "@type": "xsd:string"
+    },
+    "VerifyAccessProfileResponse": "meld:VerifyAccessProfileResponse",
+    "PaymentTransactionListResponse": "meld:PaymentTransactionListResponse",
+    "count": {
+      "@id": "meld:count",
+      "@type": "xsd:integer"
+    },
+    "remaining": {
+      "@id": "meld:remaining",
+      "@type": "xsd:integer"
+    },
+    "totalCount": {
+      "@id": "meld:totalCount",
+      "@type": "xsd:integer"
+    },
+    "transactions": {
+      "@id": "meld:transactions",
+      "@container": "@list"
+    },
+    "SearchedPaymentTransactionOutput": "meld:SearchedPaymentTransactionOutput",
+    "apiAccessProfileId": {
+      "@id": "meld:apiAccessProfileId",
+      "@type": "xsd:string"
+    },
+    "TransactionSummaryResponse": "meld:TransactionSummaryResponse",
+    "ServiceProviderCustomer": "meld:ServiceProviderCustomer",
+    "ServiceProviderCustomersGetBatchResponse": "meld:ServiceProviderCustomersGetBatchResponse",
+    "BalanceResponse": "meld:BalanceResponse",
+    "balance": {
+      "@id": "meld:balance",
+      "@type": "xsd:decimal"
+    },
+    "SessionTransactionSimple": "meld:SessionTransactionSimple",
+    "FiatSessionDataOutput": "meld:FiatSessionDataOutput",
+    "FiatSessionDataResponse": "meld:FiatSessionDataResponse",
+    "widgetPreferences": {
+      "@id": "meld:widgetPreferences"
+    },
+    "WidgetTransactionOutput": "meld:WidgetTransactionOutput",
+    "TransactionListResponse": "meld:TransactionListResponse",
+    "TransactionResponse": "meld:TransactionResponse",
+    "SessionCryptoDataResponse": "meld:SessionCryptoDataResponse",
+    "SessionDataOutput": "meld:SessionDataOutput",
+    "additionalParams": {
+      "@id": "meld:additionalParams"
+    },
+    "isNativeApplePayAvailable": {
+      "@id": "meld:isNativeApplePayAvailable",
+      "@type": "xsd:boolean"
+    },
+    "sourceCurrencyCodes": {
+      "@id": "meld:sourceCurrencyCodes",
+      "@container": "@list"
+    },
+    "CryptoConnectCustomerResponse": "meld:CryptoConnectCustomerResponse",
+    "connectionUrl": {
+      "@id": "meld:connectionUrl",
+      "@type": "xsd:string"
+    },
+    "ApplePayPaymentSessionResponse": "meld:ApplePayPaymentSessionResponse",
+    "paymentSession": {
+      "@id": "meld:paymentSession"
+    },
+    "CryptoBuySessionData": "meld:CryptoBuySessionData",
+    "institutionId": {
+      "@id": "meld:institutionId",
+      "@type": "xsd:string"
+    },
+    "CryptoSellSessionData": "meld:CryptoSellSessionData",
+    "CryptoTransferSessionData": "meld:CryptoTransferSessionData",
+    "SessionDataInputV20231219": "meld:SessionDataInputV20231219",
+    "SessionTokenForWidgetRequestV20231219": "meld:SessionTokenForWidgetRequestV20231219",
+    "CryptoDetails20250304": "meld:CryptoDetails20250304",
+    "sessionWalletAddress": {
+      "@id": "meld:sessionWalletAddress",
+      "@type": "xsd:string"
+    },
+    "PaymentTransactionOutput20250304": "meld:PaymentTransactionOutput20250304",
+    "PaymentTransactionResponse20250304": "meld:PaymentTransactionResponse20250304",
+    "CryptoQuote20260203": "meld:CryptoQuote20260203",
+    "rampIntelligence": {
+      "@id": "meld:rampIntelligence"
+    },
+    "CryptoQuoteResponse20260203": "meld:CryptoQuoteResponse20260203",
+    "RampIntelligence": "meld:RampIntelligence",
+    "previouslyUsed": {
+      "@id": "meld:previouslyUsed",
+      "@type": "xsd:dateTime"
+    },
+    "rampScore": {
+      "@id": "meld:rampScore",
+      "@type": "xsd:decimal"
+    },
+    "PaymentTransactionListResponse20250304": "meld:PaymentTransactionListResponse20250304",
+    "SearchedPaymentTransactionOutput20250304": "meld:SearchedPaymentTransactionOutput20250304",
+    "VerificationRequirementsResponse": "meld:VerificationRequirementsResponse",
+    "customerStatus": {
+      "@id": "meld:customerStatus",
+      "@type": "@id"
+    },
+    "kycRequirements": {
+      "@id": "meld:kycRequirements",
+      "@container": "@list"
+    },
+    "legalAgreements": {
+      "@id": "meld:legalAgreements",
+      "@container": "@list"
+    },
+    "verificationRequirements": {
+      "@id": "meld:verificationRequirements",
+      "@type": "@id"
+    },
+    "LegalAgreement": "meld:LegalAgreement",
+    "region": {
+      "@id": "meld:region",
+      "@type": "xsd:string"
+    },
+    "KycRequirement": "meld:KycRequirement",
+    "missingFields": {
+      "@id": "meld:missingFields",
+      "@container": "@list"
+    },
+    "processStates": {
+      "@id": "meld:processStates",
+      "@container": "@list"
+    },
+    "processes": {
+      "@id": "meld:processes",
+      "@container": "@list"
+    },
+    "CustomerStatus": "meld:CustomerStatus",
+    "FieldStatus": "meld:FieldStatus",
+    "satisfied": {
+      "@id": "meld:satisfied",
+      "@type": "xsd:boolean"
+    },
+    "VerificationRequirements": "meld:VerificationRequirements",
+    "enforced": {
+      "@id": "meld:enforced",
+      "@type": "xsd:boolean"
+    },
+    "PhoneRequirement": "meld:PhoneRequirement",
+    "requireLineType": {
+      "@id": "meld:requireLineType",
+      "@type": "xsd:string"
+    },
+    "required": {
+      "@id": "meld:required",
+      "@type": "xsd:boolean"
+    },
+    "reverifyWithinDays": {
+      "@id": "meld:reverifyWithinDays",
+      "@type": "xsd:integer"
+    },
+    "EmailRequirement": "meld:EmailRequirement",
+    "ProcessState": "meld:ProcessState",
+    "model": {
+      "@id": "meld:model",
+      "@type": "xsd:string"
+    },
+    "submittable": {
+      "@id": "meld:submittable",
+      "@type": "xsd:boolean"
+    }
+  },
+  "@type": "schema:Dataset",
+  "schema:name": "Meld.io API JSON-LD context",
+  "schema:description": "A JSON-LD @context for the objects Meld.io's own API contract declares: one class per component schema, one property per declared field, typed from the contract. Derived by script (derive-json-ld.py, 2026-10-21) from openapi/crypto-20260203.json.",
+  "dcterms:created": "2026-10-21",
+  "dcterms:source": [
+    "openapi/crypto-20260203.json"
+  ]
+}

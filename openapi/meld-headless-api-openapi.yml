@@ -1,0 +1,1865 @@
+openapi: 3.2.0
+info:
+  title: CRYPTO Headless API
+  termsOfService: urn:tos
+  license:
+    name: Apache 2.0
+    url: https://springdoc.org
+  version: '2026-02-03'
+  description: ''
+servers:
+- url: https://api-sb.meld.io
+  description: Meld API sandbox
+- url: https://api.meld.io
+  description: Meld API production
+tags:
+- name: Headless
+  description: ''
+paths:
+  /crypto/order/headless/offramp:
+    post:
+      tags:
+      - Headless
+      summary: Create a headless offramp order
+      description: Creates a headless offramp order. Caller passes customer + provider + source crypto + fiat payout method and receives a provider-issued wallet address to send cryptocurrency to.
+      operationId: /crypto-order-headless-offramp-create
+      parameters:
+      - name: Meld-Version
+        in: header
+        description: Dated API version to use for this request, e.g. `2026-02-03`.
+        required: false
+        schema:
+          type: string
+          example: '2026-02-03'
+      - name: X-Idempotency-Key
+        in: header
+        required: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties:
+                default: ''
+              default: ''
+              allOf:
+              - $ref: '#/components/schemas/HeadlessOrderOfframpRequest'
+            examples:
+              achOfframp:
+                description: achOfframp
+                value:
+                  customerId: WQ4Cp7mWmkQpjQjxxxxxx
+                  destinationCurrencyCode: USD
+                  fiatPayoutMethod:
+                    type: ACH
+                    owner: Jane Doe
+                    details:
+                      bankName: Example Bank
+                      accountType: CHECKING
+                      routingNumber: '110000000'
+                      accountNumber: 000123456789
+                      beneficiaryAddress:
+                        streetLineOne: 123 Main St
+                        city: New York
+                        state: NY
+                        postalCode: '10001'
+                        country: US
+                      bankAddress:
+                        streetLineOne: 1 Bank Plaza
+                        city: New York
+                        state: NY
+                        postalCode: '10005'
+                        country: US
+                  serviceProvider: NOAH
+                  sourceAmount: 100
+                  sourceCurrencyCode: USDC
+                  sourceWalletAddress: '0x000000000000000000000000000000000000dEaD'
+            example:
+              customerId: WQ4Cp7mWmkQpjQjxxxxxx
+              destinationCurrencyCode: USD
+              fiatPayoutMethod:
+                type: ACH
+                owner: Jane Doe
+                details:
+                  bankName: Example Bank
+                  accountType: CHECKING
+                  routingNumber: '110000000'
+                  accountNumber: 000123456789
+                  beneficiaryAddress:
+                    streetLineOne: 123 Main St
+                    city: New York
+                    state: NY
+                    postalCode: '10001'
+                    country: US
+                  bankAddress:
+                    streetLineOne: 1 Bank Plaza
+                    city: New York
+                    state: NY
+                    postalCode: '10005'
+                    country: US
+              serviceProvider: NOAH
+              sourceAmount: 100
+              sourceCurrencyCode: USDC
+              sourceWalletAddress: '0x000000000000000000000000000000000000dEaD'
+        required: true
+      responses:
+        '201':
+          description: Headless offramp order created
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/HeadlessOrderOfframpResponse'
+        '500':
+          description: 'Internal Error
+
+
+            Meld could not serialise the response. Your request is not at fault — contact Meld support with the requestId.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`JSON_PROCESSING_ERROR`'
+                  message:
+                    type: string
+                    description: Error processing JSON
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: JSON_PROCESSING_ERROR
+                message: Error processing JSON
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+        '403':
+          description: 'Unauthenticated or authenticated with insufficient access
+
+
+            Check the account''s permissions for this operation.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`FORBIDDEN`'
+                  message:
+                    type: string
+                    description: Access denied
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: FORBIDDEN
+                message: Access denied
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+        '401':
+          description: 'Invalid credentials
+
+
+            Check the API credentials being sent.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`UNAUTHORIZED`'
+                  message:
+                    type: string
+                    description: Access denied
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: UNAUTHORIZED
+                message: Access denied
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+        '400':
+          description: 'Bad Request : check request values and format
+
+
+            - `INVALID_CRYPTO_CURRENCY` — The cryptocurrency code is not one Meld supports. Check it against the supported-crypto list.
+
+            - `INVALID_PAYMENT_METHOD` — The payment method could not be resolved for this offramp order.
+
+            - `PASSTHROUGH_CREDENTIALS_INVALID` — Read errors[] — it names each passthrough credential field that is missing or conflicting. Which fields are required varies by provider.
+
+            - `TRANSACTION_INVALID_PROVIDER` — Correct the named value and send the request again.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: 'Any of:
+
+
+                      - `INVALID_CRYPTO_CURRENCY`
+
+                      - `INVALID_PAYMENT_METHOD`
+
+                      - `PASSTHROUGH_CREDENTIALS_INVALID`
+
+                      - `TRANSACTION_INVALID_PROVIDER`'
+                  errors:
+                    type: array
+                    description: 'Any of:
+
+
+                      - `[Meld-Version] is invalid`
+
+                      - `[X-Idempotency-Key] is invalid`
+
+                      - `Cannot use both passthrough key private and oauth at the same time`
+
+                      - `Missing either passthrough key private or oauth`
+
+                      - `Missing passthrough key id`
+
+                      - `Missing passthrough key private`
+
+                      - `Missing passthrough key public`
+
+                      - `Missing passthrough oauth`
+
+                      - `Missing passthrough reference`
+
+                      - `Missing service provider`'
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    description: 'Any of:
+
+
+                      - Invalid Crypto Currency requested
+
+                      - Invalid Payment Method requested
+
+                      - Invalid service provider
+
+                      - Passthrough credentials invalid'
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              examples:
+                INVALID_CRYPTO_CURRENCY:
+                  value:
+                    code: INVALID_CRYPTO_CURRENCY
+                    message: Invalid Crypto Currency requested
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                INVALID_PAYMENT_METHOD:
+                  value:
+                    code: INVALID_PAYMENT_METHOD
+                    message: Invalid Payment Method requested
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                PASSTHROUGH_CREDENTIALS_INVALID:
+                  value:
+                    code: PASSTHROUGH_CREDENTIALS_INVALID
+                    message: Passthrough credentials invalid
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                TRANSACTION_INVALID_PROVIDER:
+                  value:
+                    code: TRANSACTION_INVALID_PROVIDER
+                    message: Invalid service provider
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+        '404':
+          description: 'Not found
+
+
+            Verify the identifier in the request.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`NOT_FOUND`'
+                  message:
+                    type: string
+                    description: Resource not found
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: NOT_FOUND
+                message: Resource not found
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+        '409':
+          description: 'Conflict
+
+
+            Resolve the conflicting state, then retry.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`CONFLICT`'
+                  message:
+                    type: string
+                    description: Conflict
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: CONFLICT
+                message: Conflict
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+      security:
+      - ApiKeyAuth: []
+      x-mint:
+        href: /api-reference/crypto/headless/crypto-order-headless-offramp-create
+  /payments/virtual-account/deposit-instructions:
+    post:
+      tags:
+      - Headless
+      summary: Create or retrieve standing virtual-account onramp deposit instructions
+      description: Provisions a standing virtual bank account for recurring onramp deposits, or returns the existing instructions when the same customer, provider, payment method, currency pair, and destination wallet were already set up.
+      operationId: /payments-virtual-account-deposit-instructions-create
+      parameters:
+      - name: Meld-Version
+        in: header
+        description: Dated API version to use for this request, e.g. `2026-02-03`.
+        required: false
+        schema:
+          type: string
+          example: '2026-02-03'
+      - name: X-Idempotency-Key
+        in: header
+        required: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VirtualAccountDepositInstructionsRequest'
+            example:
+              customerId: <string>
+              destinationCurrencyCode: USDC
+              destinationWalletAddress: '0x000000000000000000000000000000000000dEaD'
+              paymentMethodType: ACH
+              serviceProvider: NOAH
+              sourceCurrencyCode: USD
+        required: true
+      responses:
+        '201':
+          description: Deposit instructions created or returned successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/VirtualAccountDepositInstructionsResponse'
+        '500':
+          description: 'Internal Error
+
+
+            - `JSON_PROCESSING_ERROR` — A value could not be serialised on Meld''s side. Contact Meld support with the requestId; a retry may not clear it.
+
+            - `SERVICE_PROVIDER_ERROR` — The provider did not return deposit instructions. Retry, then contact Meld support with the requestId.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: 'Any of:
+
+
+                      - `JSON_PROCESSING_ERROR`
+
+                      - `SERVICE_PROVIDER_ERROR`'
+                  message:
+                    type: string
+                    description: 'Any of:
+
+
+                      - Error processing JSON
+
+                      - Service Provider Error'
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              examples:
+                JSON_PROCESSING_ERROR:
+                  value:
+                    code: JSON_PROCESSING_ERROR
+                    message: Error processing JSON
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                SERVICE_PROVIDER_ERROR:
+                  value:
+                    code: SERVICE_PROVIDER_ERROR
+                    message: Service Provider Error
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+        '403':
+          description: 'Unauthenticated or authenticated with insufficient access
+
+
+            - `KYC_NOT_COMPLETED` — The customer''s KYC is not approved. Complete it before requesting deposit instructions.
+
+            - `SERVICE_PROVIDER_NOT_ENABLED` — The provider is not enabled for this account. Enable it on the Meld dashboard.
+
+            - `WHITELABEL_NOT_ENABLED` — White-label virtual accounts are not enabled for this account. Contact Meld to enable them.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: 'Any of:
+
+
+                      - `KYC_NOT_COMPLETED`
+
+                      - `SERVICE_PROVIDER_NOT_ENABLED`
+
+                      - `WHITELABEL_NOT_ENABLED`'
+                  message:
+                    type: string
+                    description: 'Any of:
+
+
+                      - Customer has not completed KYC for the requested provider
+
+                      - Headless integration is not enabled for this account/provider pair
+
+                      - Service provider is not enabled for this account'
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              examples:
+                KYC_NOT_COMPLETED:
+                  value:
+                    code: KYC_NOT_COMPLETED
+                    message: Customer has not completed KYC for the requested provider
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                SERVICE_PROVIDER_NOT_ENABLED:
+                  value:
+                    code: SERVICE_PROVIDER_NOT_ENABLED
+                    message: Service provider is not enabled for this account
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                WHITELABEL_NOT_ENABLED:
+                  value:
+                    code: WHITELABEL_NOT_ENABLED
+                    message: Headless integration is not enabled for this account/provider pair
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+        '401':
+          description: 'Invalid credentials
+
+
+            Check the API credentials being sent.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`UNAUTHORIZED`'
+                  message:
+                    type: string
+                    description: Access denied
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: UNAUTHORIZED
+                message: Access denied
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+        '400':
+          description: 'Bad Request : check request values and format
+
+
+            - `CUSTOMER_ID_REQUIRED` — Send either customerId or externalCustomerId. Both were blank.
+
+            - `CUSTOMER_NOT_FOUND` — No customer matched the identifier supplied. Verify it before retrying.
+
+            - `EXTERNAL_ORDER_ID_NOT_UNIQUE` — This externalOrderId is already used on the account. Send a different one, or fetch the existing order rather than recreating it.
+
+            - `HEADLESS_NOT_SUPPORTED` — Not supported for this provider or combination. Choose another.
+
+            - `INVALID_CRYPTO_CURRENCY` — The cryptocurrency code is not one Meld supports. Check it against the supported-crypto list.
+
+            - `INVALID_PAYMENT_METHOD` — Correct the named value and send the request again.
+
+            - `NOT_SUPPORTED` — This combination is not offered for the chosen provider or transaction type. Choose a different one.
+
+            - `PASSTHROUGH_CREDENTIALS_INVALID` — Read errors[] — it names each passthrough credential field that is missing or conflicting. Which fields are required varies by provider.
+
+            - `PAYMENT_METHOD_NOT_SUPPORTED` — Not supported for this provider or combination. Choose another.
+
+            - `PHONE_NUMBER_REQUIRED` — Send customerPhoneNumber. It is required when paymentMethodType is MOBILE_MONEY.
+
+            - `TRANSACTION_INVALID_PROVIDER` — No service provider was supplied on the request.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: 'Any of:
+
+
+                      - `CUSTOMER_ID_REQUIRED`
+
+                      - `CUSTOMER_NOT_FOUND`
+
+                      - `EXTERNAL_ORDER_ID_NOT_UNIQUE`
+
+                      - `HEADLESS_NOT_SUPPORTED`
+
+                      - `INVALID_CRYPTO_CURRENCY`
+
+                      - `INVALID_PAYMENT_METHOD`
+
+                      - `NOT_SUPPORTED`
+
+                      - `PASSTHROUGH_CREDENTIALS_INVALID`
+
+                      - `PAYMENT_METHOD_NOT_SUPPORTED`
+
+                      - `PHONE_NUMBER_REQUIRED`
+
+                      - `TRANSACTION_INVALID_PROVIDER`'
+                  errors:
+                    type: array
+                    description: 'Any of:
+
+
+                      - `[customerId] must not be blank`
+
+                      - `[destinationCurrencyCode] must not be blank`
+
+                      - `[destinationWalletAddress] must not be blank`
+
+                      - `[paymentMethodType] must not be null`
+
+                      - `[serviceProvider] must not be null`
+
+                      - `[sourceCurrencyCode] must not be blank`
+
+                      - `[Meld-Version] is invalid`
+
+                      - `[X-Idempotency-Key] is invalid`
+
+                      - `Cannot use both passthrough key private and oauth at the same time`
+
+                      - `Missing either passthrough key private or oauth`
+
+                      - `Missing passthrough key id`
+
+                      - `Missing passthrough key private`
+
+                      - `Missing passthrough key public`
+
+                      - `Missing passthrough oauth`
+
+                      - `Missing passthrough reference`
+
+                      - `Missing service provider`'
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    description: 'Any of:
+
+
+                      - Customer not found
+
+                      - Either customerId or externalCustomerId is required
+
+                      - Invalid Crypto Currency requested
+
+                      - Invalid Payment Method requested
+
+                      - Invalid service provider
+
+                      - Operation not supported for service provider
+
+                      - Passthrough credentials invalid
+
+                      - Provider does not support headless onramp orders
+
+                      - Requested payment method is not supported for this provider in headless mode
+
+                      - customerPhoneNumber is required for the requested payment method
+
+                      - externalOrderId must be unique per account'
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              examples:
+                CUSTOMER_ID_REQUIRED:
+                  value:
+                    code: CUSTOMER_ID_REQUIRED
+                    message: Either customerId or externalCustomerId is required
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                CUSTOMER_NOT_FOUND:
+                  value:
+                    code: CUSTOMER_NOT_FOUND
+                    message: Customer not found
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                EXTERNAL_ORDER_ID_NOT_UNIQUE:
+                  value:
+                    code: EXTERNAL_ORDER_ID_NOT_UNIQUE
+                    message: externalOrderId must be unique per account
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                HEADLESS_NOT_SUPPORTED:
+                  value:
+                    code: HEADLESS_NOT_SUPPORTED
+                    message: Provider does not support headless onramp orders
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                INVALID_CRYPTO_CURRENCY:
+                  value:
+                    code: INVALID_CRYPTO_CURRENCY
+                    message: Invalid Crypto Currency requested
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                INVALID_PAYMENT_METHOD:
+                  value:
+                    code: INVALID_PAYMENT_METHOD
+                    message: Invalid Payment Method requested
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                NOT_SUPPORTED:
+                  value:
+                    code: NOT_SUPPORTED
+                    message: Operation not supported for service provider
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                PASSTHROUGH_CREDENTIALS_INVALID:
+                  value:
+                    code: PASSTHROUGH_CREDENTIALS_INVALID
+                    message: Passthrough credentials invalid
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                PAYMENT_METHOD_NOT_SUPPORTED:
+                  value:
+                    code: PAYMENT_METHOD_NOT_SUPPORTED
+                    message: Requested payment method is not supported for this provider in headless mode
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                PHONE_NUMBER_REQUIRED:
+                  value:
+                    code: PHONE_NUMBER_REQUIRED
+                    message: customerPhoneNumber is required for the requested payment method
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                TRANSACTION_INVALID_PROVIDER:
+                  value:
+                    code: TRANSACTION_INVALID_PROVIDER
+                    message: Invalid service provider
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+      security:
+      - ApiKeyAuth: []
+      x-mint:
+        href: /api-reference/crypto/headless/payments-virtual-account-deposit-instructions-create
+  /crypto/order/headless/onramp:
+    post:
+      tags:
+      - Headless
+      summary: Create a headless onramp order
+      description: 'Creates a headless onramp order. Caller passes customer + provider + payment method and receives a method-specific payload in paymentMethodResponseDetails:
+
+
+        - ACH/SEPA/PIX → bank-transfer details to display.
+
+        - CREDIT_DEBIT_CARD → a provider-hosted widget, or `NativeSdkOrder` when renderMode=SDK_NATIVE.
+
+        - STRIPE + CREDIT_DEBIT_CARD/APPLE_PAY → one `NativeSdkOrder` shape; `paymentMethodType` selects the method. `destinationNetworkCode` and `X-Idempotency-Key` are required. Stripe remains disabled until rollout gates clear.
+
+        - MERCURYO + APPLE_PAY → native (non-widget) flow: a `sessionToken` (JWT) + `merchantTransactionId`. No redirect URL. The caller renders the Apple Pay sheet itself (Safari/WebView via ApplePaySession) and drives these endpoints, authenticated with header `X-Crypto-Session-Token: `: on `onvalidatemerchant` call POST /crypto/session/mercuryo/apple-pay/validate-merchant with the event''s validationURL; on `onpaymentauthorized` call POST /crypto/session/mercuryo/apple-pay/process with the Apple payToken + the `merchantTransactionId` from this response. The Mercuryo buy_token is fetched and stored server-side, so the caller never handles it. If native Apple Pay is unavailable for the route the call fails with INVALID_PAYMENT_METHOD (no redirect fallback).'
+      operationId: /crypto-order-headless-onramp-create
+      parameters:
+      - name: Meld-Version
+        in: header
+        description: Dated API version to use for this request, e.g. `2026-02-03`.
+        required: false
+        schema:
+          type: string
+          example: '2026-02-03'
+      - name: X-Idempotency-Key
+        in: header
+        required: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HeadlessOrderOnrampRequest'
+            example:
+              countryCode: US
+              destinationCurrencyCode: USDC
+              destinationWalletAddress: <string>
+              paymentMethodType: CREDIT_DEBIT_CARD
+              serviceProvider: NOAH
+              sourceAmount: 200
+              sourceCurrencyCode: USD
+        required: true
+      responses:
+        '201':
+          description: Headless order created
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/HeadlessOrderOnrampResponse'
+        '500':
+          description: Internal Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Unauthenticated or authenticated with insufficient access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '400':
+          description: 'Bad Request : check request values and format'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      x-mint:
+        href: /api-reference/crypto/headless/crypto-order-headless-onramp-create
+  /crypto/onramp/{serviceProvider}/requirements:
+    get:
+      tags:
+      - Headless
+      summary: Get a provider's verification requirements
+      description: 'Returns the provider''s customer-verification requirements and legal agreements. Pass customerId to additionally get the customer''s current (advisory) per-field verification status. Pass the order you intend to create — payment method, amount and corridor — to additionally get the provider''s own outstanding KYC details: those are jurisdiction-, amount- and method-dependent, so they can only be reported against a concrete intent.'
+      operationId: /crypto-onramp-verification-requirements-get
+      parameters:
+      - name: Meld-Version
+        in: header
+        description: Dated API version to use for this request, e.g. `2026-02-03`.
+        required: false
+        schema:
+          type: string
+          example: '2026-02-03'
+      - name: serviceProvider
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: customerId
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: paymentMethodType
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: sourceCurrencyCode
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: sourceAmount
+        in: query
+        required: false
+        schema:
+          type: number
+      - name: destinationCurrencyCode
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: destinationNetworkCode
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: countryCode
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: subdivision
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Requirements returned
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/VerificationRequirementsResponse'
+        '403':
+          description: Unauthenticated or authenticated with insufficient access
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '400':
+          description: 'Bad Request : check request values and format'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server Error. This applies to all 5xx errors, including but not limited to 500, 501, 502, 503, and 504 errors. You should treat all of these errors the same.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      x-mint:
+        href: /api-reference/crypto/headless/crypto-onramp-verification-requirements-get
+components:
+  schemas:
+    AchPaymentMethodDetails:
+      allOf:
+      - $ref: '#/components/schemas/FiatPayoutMethodDetails'
+      - type: object
+        properties:
+          bankName:
+            type: string
+            description: Bank's name
+          accountType:
+            type: string
+            description: Bank account type
+            example: CHECKING, SAVINGS
+            minLength: 1
+          routingNumber:
+            type: string
+            description: Bank routing number
+            minLength: 1
+          accountNumber:
+            type: string
+            description: Bank account number
+            minLength: 1
+          beneficiaryAddress:
+            description: Beneficiary's address
+            allOf:
+            - $ref: '#/components/schemas/Address'
+          bankAddress:
+            description: Bank address
+            allOf:
+            - $ref: '#/components/schemas/Address'
+      description: Payout method details for ACH / PAYOUT_TO_BANK / NG_BANK_TRANSFER / ZA_BANK_TRANSFER
+      required:
+      - accountNumber
+      - accountType
+      - bankAddress
+      - beneficiaryAddress
+      - routingNumber
+    VerificationRequirementsResponse:
+      type: object
+      properties:
+        customerStatus:
+          $ref: '#/components/schemas/CustomerStatus'
+        kycRequirements:
+          type: array
+          items:
+            $ref: '#/components/schemas/KycRequirement'
+        legalAgreements:
+          type: array
+          items:
+            $ref: '#/components/schemas/LegalAgreement'
+        serviceProvider:
+          type: string
+        verificationRequirements:
+          $ref: '#/components/schemas/VerificationRequirements'
+    ProviderData:
+      description: Provider-specific extension keyed by serviceProvider
+      discriminator:
+        propertyName: serviceProvider
+      properties:
+        serviceProvider:
+          type: string
+      required:
+      - serviceProvider
+    SepaPaymentMethodDetails:
+      allOf:
+      - $ref: '#/components/schemas/FiatPayoutMethodDetails'
+      - type: object
+        properties:
+          iban:
+            type: string
+            description: IBAN
+            minLength: 1
+      description: Payout method details for SEPA
+      required:
+      - iban
+    VirtualAccountDepositInstructionsResponse:
+      type: object
+      description: Standing virtual-account deposit instructions
+      properties:
+        customerId:
+          type: string
+          description: Meld customer id
+          minLength: 1
+        depositInstructionsId:
+          type: string
+          description: Unique id for this deposit instruction row
+          minLength: 1
+        destinationCurrencyCode:
+          type: string
+          description: Destination cryptocurrency code
+          minLength: 1
+        destinationWalletAddress:
+          type: string
+          description: Destination wallet address for the purchased crypto
+          example: '0x000000000000000000000000000000000000dEaD'
+          minLength: 1
+        paymentMethodType:
+          type: string
+          description: Type of the virtual account created
+          enum:
+          - ACH
+          - SEPA
+          - PIX
+          - MOBILE_MONEY
+        receivingBankInformation:
+          description: Bank information for the fiat transfer; shape depends on paymentMethodType
+          oneOf:
+          - title: AchReceivingBankInformation
+            allOf:
+            - $ref: '#/components/schemas/AchReceivingBankInformation'
+          - title: MobileMoneyReceivingBankInformation
+            allOf:
+            - $ref: '#/components/schemas/MobileMoneyReceivingBankInformation'
+          - title: PixReceivingBankInformation
+            allOf:
+            - $ref: '#/components/schemas/PixReceivingBankInformation'
+          - title: SepaReceivingBankInformation
+            allOf:
+            - $ref: '#/components/schemas/SepaReceivingBankInformation'
+        serviceProvider:
+          type: string
+          description: Service provider
+          enum:
+          - NOAH
+          - DUENETWORK
+          example: NOAH
+        serviceProviderDetails:
+          type: object
+          additionalProperties: {}
+          description: Raw provider-specific fields not mapped into receivingBankInformation
+        sourceCurrencyCode:
+          type: string
+          description: Source fiat currency code
+          minLength: 1
+      required:
+      - customerId
+      - depositInstructionsId
+      - destinationCurrencyCode
+      - destinationWalletAddress
+      - paymentMethodType
+      - serviceProvider
+      - sourceCurrencyCode
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Stable identifier for the failure.
+        errors:
+          type: array
+          items:
+            type: string
+          description: What was rejected, one entry per field or rule.
+        message:
+          type: string
+          description: A description of what went wrong.
+        requestId:
+          type: string
+          description: Quote this when asking Meld about a specific failure.
+        serviceProviderDetails:
+          type: object
+          properties:
+            code:
+              type: string
+              description: The provider's own error code, when it sent one.
+            message:
+              type: string
+              description: The provider's own message.
+          example:
+            code: '5034'
+            message: Digital currency and blockchain combination is restricted for customer's country
+          description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+          additionalProperties: {}
+        timestamp:
+          type: string
+          format: date-time
+          description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+          example: '2026-08-14T09:41:22.482+00:00'
+    FiatPayoutMethodDetails:
+      description: Payout method details. The schema depends on fiatPayoutMethod.type.
+    FiatPayoutMethod:
+      type: object
+      description: Payout method for offramp
+      properties:
+        details:
+          description: Payout method details
+          oneOf:
+          - title: AchPaymentMethodDetails
+            allOf:
+            - $ref: '#/components/schemas/AchPaymentMethodDetails'
+          - title: MobilePaymentMethodDetails
+            allOf:
+            - $ref: '#/components/schemas/MobilePaymentMethodDetails'
+          - title: SepaPaymentMethodDetails
+            allOf:
+            - $ref: '#/components/schemas/SepaPaymentMethodDetails'
+        owner:
+          type: string
+          description: Account owner's first and last name
+          minLength: 1
+        type:
+          type: string
+          description: Fiat Payout method type
+          enum:
+          - PAYOUT_TO_BANK
+          - ACH
+          - SEPA
+          - MOBILE_MONEY
+          - NG_BANK_TRANSFER
+          - ZA_BANK_TRANSFER
+      required:
+      - details
+      - owner
+      - type
+    LegalAgreement:
+      type: object
+      properties:
+        region:
+          type: string
+        type:
+          type: string
+        url:
+          type: string
+    SepaReceivingBankInformation:
+      allOf:
+      - $ref: '#/components/schemas/ReceivingBankInformation'
+      - type: object
+        properties:
+          iban:
+            type: string
+            description: IBAN
+          bic:
+            type: string
+            description: BIC / SWIFT code when provided by the provider
+          bankName:
+            type: string
+            description: Receiving bank name
+          accountHolderName:
+            type: string
+            description: Account holder name on the virtual account
+      description: Receiving bank details for SEPA
+    PixReceivingBankInformation:
+      allOf:
+      - $ref: '#/components/schemas/ReceivingBankInformation'
+      - type: object
+        properties:
+          pixKey:
+            type: string
+            description: PIX key
+          bankName:
+            type: string
+            description: Receiving bank name
+          accountHolderName:
+            type: string
+            description: Account holder name on the virtual account
+      description: Receiving bank details for PIX
+    PhoneRequirement:
+      type: object
+      properties:
+        requireLineType:
+          type: string
+        required:
+          type: boolean
+        reverifyWithinDays:
+          type: integer
+          format: int32
+    KycRequirement:
+      type: object
+      properties:
+        code:
+          type: string
+        missingFields:
+          type: array
+          items:
+            type: string
+        processStates:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProcessState'
+        processes:
+          type: array
+          items:
+            type: string
+        reason:
+          type: string
+        status:
+          type: string
+          enum:
+          - REQUIRED
+          - PENDING
+          - SATISFIED
+          - BLOCKED
+    HeadlessOrderOnrampResponse:
+      type: object
+      description: Headless onramp order response envelope
+      properties:
+        customerId:
+          type: string
+          description: Meld customer id
+        externalCustomerId:
+          type: string
+          description: Caller's external customer id
+        externalOrderId:
+          type: string
+          description: Caller's external order id
+        id:
+          type: string
+          description: Unique order ID for tracking the onramp order
+        payload:
+          description: Echo of the integrator's request payload for this order
+          allOf:
+          - $ref: '#/components/schemas/RequestPayload'
+        paymentMethodResponseDetails:
+          description: Method-specific response payload
+          oneOf:
+          - title: ApplePayOrder
+            allOf:
+            - $ref: '#/components/schemas/ApplePayOrder'
+          - title: BankTransferOrder
+            allOf:
+            - $ref: '#/components/schemas/BankTransferOrder'
+          - title: CardOrder
+            allOf:
+            - $ref: '#/components/schemas/CardOrder'
+        paymentMethodType:
+          type: string
+          description: Payment method type for this order
+          enum:
+          - CREDIT_DEBIT_CARD
+          - APPLE_PAY
+          - ACH
+          - SEPA
+          - PIX
+          - MOBILE_MONEY
+        serviceProviderDetails:
+          type: object
+          additionalProperties: {}
+          description: Raw provider receiving-bank details (untyped passthrough). Present for bank-transfer methods when the provider returns them; carries fields that have no typed home on paymentMethodResponseDetails (e.g. beneficiary/company name, bank name, address). Omitted when empty.
+    HeadlessOrderOnrampRequest:
+      type: object
+      description: Request to create a headless onramp order
+      properties:
+        clientIpAddress:
+          type: string
+          description: The end-user's IP address. Required by some service providers.
+        countryCode:
+          type: string
+          description: Country code (ISO 3166-1 alpha-2)
+          example: US
+          minLength: 1
+        customerId:
+          type: string
+          description: Meld customer id (one of customerId / externalCustomerId is required)
+        customerPhoneNumber:
+          type: string
+          description: Customer phone number — required for MOBILE_MONEY
+        destinationCurrencyCode:
+          type: string
+          description: Destination cryptocurrency code
+          example: USDC
+          minLength: 1
+        destinationWalletAddress:
+          type: string
+          description: Wallet address to receive the cryptocurrency
+          minLength: 1
+        externalCustomerId:
+          type: string
+          description: Caller's external customer id (one of customerId / externalCustomerId is required)
+        externalOrderId:
+          type: string
+          description: Caller's reference for the order; unique per account when provided
+        paymentMethodType:
+          type: string
+          description: Payment method type
+          enum:
+          - CREDIT_DEBIT_CARD
+          - APPLE_PAY
+          - ACH
+          - SEPA
+          - PIX
+          - MOBILE_MONEY
+        providerData:
+          description: Provider-specific extension; subtype keyed by serviceProvider
+          oneOf:
+          - title: YellowcardData
+            allOf:
+            - $ref: '#/components/schemas/YellowcardData'
+        redirectUrl:
+          type: string
+          description: Redirect URL — required for CARD/REDIRECT flows
+        serviceProvider:
+          type: string
+          description: Service provider to use for the order
+          enum:
+          - NOAH
+          - DUENETWORK
+          - BRALE
+          - YELLOWCARD
+          - MERCURYO
+          example: NOAH
+        sourceAmount:
+          type: number
+          description: Source amount
+          example: 200
+          minimum: 0.0
+        sourceCurrencyCode:
+          type: string
+          description: Source currency code (ISO 4217)
+          example: USD
+          minLength: 1
+      required:
+      - countryCode
+      - destinationCurrencyCode
+      - destinationWalletAddress
+      - paymentMethodType
+      - serviceProvider
+      - sourceAmount
+      - sourceCurrencyCode
+    HeadlessOrderOfframpResponse:
+      type: object
+      description: Response containing headless offramp order details
+      properties:
+        id:
+          type: string
+          description: Unique order ID for tracking the offramp order
+          minLength: 1
+        paymentMethodType:
+          type: string
+          description: Payout method for receiving the converted fiat currency
+          example: ACH
+          minLength: 1
+        walletAddress:
+          type: string
+          description: Wallet address to send the crypto funds to
+          example: '0x000000000000000000000000000000000000dEaD'
+      required:
+      - id
+      - paymentMethodType
+    VirtualAccountDepositInstructionsRequest:
+      type: object
+      description: Request to provision or retrieve standing virtual-account deposit instructions
+      properties:
+        customerId:
+          type: string
+          description: Meld customer id
+          minLength: 1
+        customerPhoneNumber:
+          type: string
+          description: Customer phone number — required when paymentMethodType is MOBILE_MONEY and the provider requires it
+        destinationCurrencyCode:
+          type: string
+          description: Destination cryptocurrency code
+          example: USDC
+          minLength: 1
+        destinationWalletAddress:
+          type: string
+          description: Wallet address that will receive the purchased cryptocurrency
+          example: '0x000000000000000000000000000000000000dEaD'
+          minLength: 1
+        paymentMethodType:
+          type: string
+          description: Desired type of virtual account to create for sending the fiat currency to
+          enum:
+          - ACH
+          - SEPA
+          - PIX
+          - MOBILE_MONEY
+        serviceProvider:
+          type: string
+          description: Service provider used for creating the virtual deposit account
+          enum:
+          - NOAH
+          - DUENETWORK
+          example: NOAH
+        sourceCurrencyCode:
+          type: string
+          description: Source fiat currency code
+          example: USD
+          minLength: 1
+      required:
+      - customerId
+      - destinationCurrencyCode
+      - destinationWalletAddress
+      - paymentMethodType
+      - serviceProvider
+      - sourceCurrencyCode
+    YellowcardData:
+      allOf:
+      - $ref: '#/components/schemas/ProviderData'
+      - type: object
+        properties:
+          subaccountCustomerId:
+            type: string
+            description: Optional Meld customer id used to track the business sub-account this transaction belongs to when multiple businesses operate under one Meld account.
+          externalSubaccountCustomerId:
+            type: string
+            description: Optional external identifier for the sub-account customer this transaction belongs to. Used for tracking when multiple businesses operate under one Meld account. A sub-account customer must be created first before it can be referenced.
+      description: Yellowcard-specific provider data
+    CustomerStatus:
+      type: object
+      properties:
+        email:
+          $ref: '#/components/schemas/FieldStatus'
+        phone:
+          $ref: '#/components/schemas/FieldStatus'
+    ProcessState:
+      type: object
+      properties:
+        code:
+          type: string
+        model:
+          type: string
+        reason:
+          type: string
+        status:
+          type: string
+        submittable:
+          type: boolean
+    MobileMoneyReceivingBankInformation:
+      allOf:
+      - $ref: '#/components/schemas/ReceivingBankInformation'
+      - type: object
+        properties:
+          mobileMoneyReference:
+            type: string
+            description: Mobile money reference
+          bankName:
+            type: string
+            description: Receiving bank name
+          accountHolderName:
+            type: string
+            description: Account holder name on the virtual account
+      description: Receiving bank details for mobile money
+    BankTransferOrder:
+      allOf:
+      - $ref: '#/components/schemas/PaymentMethodResponseDetails'
+      - type: object
+        properties:
+          accountNumber:
+            type: string
+            description: Bank account number; populated for ACH
+          routingNumber:
+            type: string
+            description: Bank routing number; populated for ACH
+          iban:
+            type: string
+            description: IBAN; populated for SEPA
+          bic:
+            type: string
+            description: BIC / SWIFT code; populated for SEPA and wire
+          pixKey:
+            type: string
+            description: PIX key; populated for PIX
+          mobileMoneyReference:
+            type: string
+            description: Mobile money reference; populated for MOBILE_MONEY
+          paymentReference:
+            type: string
+            description: Payment reference the payer must quote on the incoming bank transfer so the provider can correlate the inbound funds to this order. For SEPA (Due) this is the transfer memo. Populated only when the provider issues the reference at order-creation time; null otherwise.
+      description: Bank-transfer response — present for ACH, SEPA, PIX, MOBILE_MONEY. Only the rail-relevant fields are populated per response; the others are null.
+    Address:
+      type: object
+      description: Address information
+      properties:
+        city:
+          type: string
+          description: City
+          minLength: 1
+        country:
+          type: string
+          description: Two-letter country code (ISO 3166-1 alpha-2)
+          example: US
+          minLength: 1
+        postalCode:
+          type: string
+          description: Postal code
+          minLength: 1
+        state:
+          type: string
+          description: State
+        streetLineOne:
+          type: string
+          description: Street line 1
+          minLength: 1
+        streetLineTwo:
+          type: string
+          description: Street line 2
+      required:
+      - city
+      - country
+      - postalCode
+      - streetLineOne
+    FieldStatus:
+      type: object
+      properties:
+        reason:
+          type: string
+        satisfied:
+          type: boolean
+    MobilePaymentMethodDetails:
+      allOf:
+      - $ref: '#/components/schemas/FiatPayoutMethodDetails'
+      - type: object
+        properties:
+          phoneNumber:
+            type: string
+            description: Customer phone number
+            minLength: 1
+      description: Payout method details for MOBILE_MONEY
+      required:
+      - phoneNumber
+    ReceivingBankInformation:
+      discriminator:
+        propertyName: paymentMethodType
+      properties:
+        paymentMethodType:
+          type: string
+      required:
+      - paymentMethodType
+    EmailRequirement:
+      type: object
+      properties:
+        required:
+          type: boolean
+    RequestPayload:
+      type: object
+      description: Echo of the integrator's request payload for this order
+      properties:
+        countryCode:
+          type: string
+          description: Country code
+        customerId:
+          type: string
+          description: Meld customer id
+        customerPhoneNumber:
+          type: string
+          description: Customer phone number
+        destinationCurrencyCode:
+          type: string
+          description: Destination cryptocurrency code
+        destinationWalletAddress:
+          type: string
+          description: Destination wallet address
+        externalCustomerId:
+          type: string
+          description: Caller's external customer id
+        externalOrderId:
+          type: string
+          description: Caller's external order id
+        paymentMethodType:
+          type: string
+          description: Requested payment method type
+          enum:
+          - CREDIT_DEBIT_CARD
+          - APPLE_PAY
+          - ACH
+          - SEPA
+          - PIX
+          - MOBILE_MONEY
+        providerData:
+          description: Provider-specific request data
+          oneOf:
+          - title: YellowcardData
+            allOf:
+            - $ref: '#/components/schemas/YellowcardData'
+        redirectUrl:
+          type: string
+          description: Redirect URL
+        serviceProvider:
+          type: string
+          description: Service provider used for this order
+          enum:
+          - NOAH
+          - DUENETWORK
+          - BRALE
+          - YELLOWCARD
+          - MERCURYO
+          example: NOAH
+        sourceAmount:
+          type: number
+          description: Source amount in fiat currency
+        sourceCurrencyCode:
+          type: string
+          description: Source (fiat) currency code
+    AchReceivingBankInformation:
+      allOf:
+      - $ref: '#/components/schemas/ReceivingBankInformation'
+      - type: object
+        properties:
+          accountNumber:
+            type: string
+            description: Bank account number
+          routingNumber:
+            type: string
+            description: Bank routing number
+          bankName:
+            type: string
+            description: Receiving bank name
+          accountHolderName:
+            type: string
+            description: Account holder name on the virtual account
+      description: Receiving bank details for ACH
+    PaymentMethodResponseDetails: {}
+    VerificationRequirements:
+      type: object
+      properties:
+        email:
+          $ref: '#/components/schemas/EmailRequirement'
+        enforced:
+          type: boolean
+        phone:
+          $ref: '#/components/schemas/PhoneRequirement'
+    HeadlessOrderOfframpRequest:
+      type: object
+      description: Request to create a headless offramp order
+      properties:
+        customerId:
+          type: string
+          description: Customer id
+          minLength: 1
+        destinationCurrencyCode:
+          type: string
+          description: Destination fiat currency code
+          example: USD
+          minLength: 1
+        externalSubaccountCustomerId:
+          type: string
+          description: Optional external identifier for the sub-account customer this transaction belongs to. Used for tracking when multiple businesses operate under one Meld account. A sub-account customer must be created first before it can be referenced.
+        fiatPayoutMethod:
+          description: Payout method details for how and where the fiat currency will be received
+          allOf:
+          - $ref: '#/components/schemas/FiatPayoutMethod'
+        serviceProvider:
+          type: string
+          description: Service provider to use for this offramp order
+          enum:
+          - NOAH
+          - DUENETWORK
+          - BRALE
+          - YELLOWCARD
+          example: NOAH
+        sourceAmount:
+          type: number
+          description: Source amount in cryptocurrency
+          example: 20000
+          minimum: 0.0
+        sourceCurrencyCode:
+          type: string
+          description: Source cryptocurrency code
+          example: USDC
+          minLength: 1
+        sourceWalletAddress:
+          type: string
+          description: Source wallet address to send cryptocurrency from
+          example: '0x000000000000000000000000000000000000dEaD'
+          minLength: 1
+        subaccountCustomerId:
+          type: string
+          description: Optional Meld customer id used to track the business sub-account this transaction belongs to when multiple businesses operate under one Meld account.
+      required:
+      - customerId
+      - destinationCurrencyCode
+      - fiatPayoutMethod
+      - serviceProvider
+      - sourceAmount
+      - sourceCurrencyCode
+      - sourceWalletAddress
+    ApplePayOrder:
+      allOf:
+      - $ref: '#/components/schemas/PaymentMethodResponseDetails'
+      - type: object
+        properties:
+          sessionToken:
+            type: string
+            description: Session JWT used to authenticate the /crypto/session/* Apple Pay endpoints
+          merchantTransactionId:
+            type: string
+            description: Merchant transaction id to pass into /apple-pay/process; equals the session id
+      description: 'Apple Pay response — present when paymentMethodType == APPLE_PAY. Native (non-widget) flow: the caller renders the Apple Pay sheet on its own surface, then drives the existing session-token endpoints (GET /crypto/session/applepay/paymentsession, POST /crypto/session/mercuryo/apple-pay/validate-merchant, POST /crypto/session/mercuryo/apple-pay/process) authenticated with sessionToken. There is no provider-hosted widget URL.'
+    CardOrder:
+      allOf:
+      - $ref: '#/components/schemas/PaymentMethodResponseDetails'
+      - type: object
+        properties:
+          serviceProviderWidgetUrl:
+            type: string
+            description: Provider-hosted widget URL
+          renderMode:
+            type: string
+            description: Render mode for the card payment surface
+            enum:
+            - IFRAME
+            - REDIRECT
+      description: Card-method response — present when paymentMethodType == CREDIT_DEBIT_CARD
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      x-default: BASIC <Meld API Key>
+    BasicAuth:
+      type: http
+      scheme: basic
+x-readme:
+  explorer-enabled: true
+  proxy-enabled: false
+  samples-enabled: true
+  headers:
+  - key: Meld-Version
+    value: '2026-02-03'

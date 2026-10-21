@@ -1,0 +1,16 @@
+generated: '2026-10-21'
+method: searched
+generator: extract-docs-artifacts.py (local)
+source: https://docs.meld.io/docs/stablecoins/white-label-api-integration/migration-service-provider-to-network-partner
+sources:
+- https://docs.meld.io/docs/stablecoins/white-label-api-integration/migration-service-provider-to-network-partner
+- https://docs.meld.io/docs/meld-api/getting-started
+- https://docs.meld.io/docs/stablecoins/white-label-api-integration/whitelabel-quickstart
+- https://docs.meld.io/docs/stablecoins/meld-checkout-integration/meld-checkout-quickstart
+versioning:
+  scheme: header
+  current: Meld-Version
+  docs: '2026-02-03'
+deprecation: {}
+status_page: null
+docs: https://docs.meld.io/docs/stablecoins/white-label-api-integration/migration-service-provider-to-network-partner

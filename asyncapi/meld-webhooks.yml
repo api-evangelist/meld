@@ -1,0 +1,26 @@
+generated: '2026-10-21'
+method: searched
+generator: extract-docs-artifacts.py (local)
+source: https://docs.meld.io/docs/bank-linking/webhook-events-bank-linking
+sources:
+- https://docs.meld.io/docs/bank-linking/webhook-events-bank-linking
+- https://docs.meld.io/docs/bank-linking/onboarding/step-5-setting-up-webhooks
+- https://docs.meld.io/docs/bank-linking/get-connection-data/when-is-your-data-available
+description: Meld Bank Linking webhooks provide real‑time updates about connection lifecycle, account aggregation, and transaction aggregation.
+events:
+- event: BANK_LINKING_CONNECTION_COMPLETED
+  description: Sent when the customer completes the connection widget flow; it does not guarantee that financial account data is ready.
+- event: BANK_LINKING_CONNECTION_STATUS_CHANGE
+  description: Sent whenever a connection changes status, including service‑provider errors after completion.
+- event: BANK_LINKING_ACCOUNTS_UPDATING
+  description: Sent after the connect flow when accounts are being aggregated and only basic account info is available.
+- event: BANK_LINKING_ACCOUNTS_UPDATED
+  description: Sent once aggregation of non‑transaction products for the accounts is complete.
+- event: BANK_LINKING_TRANSACTIONS_AGGREGATED
+  description: Sent when transactions have finished aggregating for all accounts belonging to the connection.
+- event: BANK_LINKING_HISTORICAL_TRANSACTIONS_AGGREGATED
+  description: Sent when historical transactions (up to two years) have finished aggregating for all applicable accounts.
+delivery: {}
+note: The documentation references webhook authentication and retry behavior but does not provide concrete details such as header names, signature
+  schemes, or retry policies.
+docs: https://docs.meld.io/docs/bank-linking/webhook-events-bank-linking

@@ -1,0 +1,4098 @@
+openapi: 3.2.0
+info:
+  title: CRYPTO Retail Ramp API
+  termsOfService: urn:tos
+  license:
+    name: Apache 2.0
+    url: https://springdoc.org
+  version: '2026-02-03'
+  description: ''
+servers:
+- url: https://api-sb.meld.io
+  description: Meld API sandbox
+- url: https://api.meld.io
+  description: Meld API production
+tags:
+- name: Retail Ramp
+  description: ''
+paths:
+  /payments/crypto/quote:
+    post:
+      tags:
+      - Retail Ramp
+      summary: Create a crypto quote
+      description: Use this endpoint to request the current exchange rate of the selected fiat currency-cryptocurrency pair, and the required fees. Enter a fiat currency as the sourceCurrencyCode to buy crypto and enter a crypto currency in that field to sell crypto.
+      operationId: /crypto-quote-get
+      parameters:
+      - name: Meld-Version
+        in: header
+        description: Dated API version to use for this request, e.g. `2026-02-03`.
+        required: false
+        schema:
+          type: string
+          example: '2026-02-03'
+      - name: includeSwap
+        in: query
+        description: If true, include both direct ramp/offramp quotes and stitched ramp+swap/offramp+swap quotes (CRYPTO_PURCHASE_SWAP / CRYPTO_SELL_SWAP) in the response. When false, swap is only used as a fallback when no direct ramp or offramp providers return quotes. Swap quotes are gated by the per-account onrampSwapEnabled / offrampSwapEnabled preferences regardless of this flag.
+        required: false
+        schema:
+          type: string
+          default: ''
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CryptoQuoteRequest'
+            example:
+              countryCode: US
+              destinationCurrencyCode: BTC
+              sourceAmount: 100
+              sourceCurrencyCode: USD
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CryptoQuoteResponse20260203'
+        '403':
+          description: 'Unauthenticated or authenticated with insufficient access
+
+
+            Check the account''s permissions for this operation.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`FORBIDDEN`'
+                  message:
+                    type: string
+                    description: Access denied
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: FORBIDDEN
+                message: Access denied
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+        '401':
+          description: 'Invalid credentials
+
+
+            Meld could not authenticate with the provider. Your credentials are not at fault — contact Meld support with the requestId.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`SERVICE_PROVIDER_AUTHENTICATION_EXCEPTION`'
+                  message:
+                    type: string
+                    description: Authentication error on service provider
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: SERVICE_PROVIDER_AUTHENTICATION_EXCEPTION
+                message: Authentication error on service provider
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+        '400':
+          description: 'Bad Request : check request values and format
+
+
+            - `ACCOUNT_OFFRAMP_NOT_ENABLED` — Offramp is not enabled for this account. Enable it on the Meld dashboard.
+
+            - `ACCOUNT_ONRAMP_NOT_ENABLED` — Onramp is not enabled for this account. Enable it on the Meld dashboard.
+
+            - `BAD_REQUEST` — Send either customerId or externalCustomerId — this operation needs one of them and neither was supplied.
+
+            - `INCOMPATIBLE_REQUEST` — A provider rejected the combination of values as unusable together. Change the currency pair, payment method or country.
+
+            - `INVALID_AMOUNT` — A provider rejected the amount for this route. Adjust it and request a new quote.
+
+            - `INVALID_AMOUNT_OR_CURRENCY` — Correct the named value and send the request again.
+
+            - `INVALID_AMOUNT_TOO_HIGH` — The amount is above the maximum for every provider that covers this route. Lower it.
+
+            - `INVALID_AMOUNT_TOO_LOW` — The amount is below the minimum for every provider that covers this route. Raise it.
+
+            - `INVALID_CRYPTO_CURRENCY` — Correct the named value and send the request again.
+
+            - `INVALID_QUERY_PARAMETER` — Read errors[] — it names each query parameter that failed validation.
+
+            - `NOT_SUPPORTED` — This quote type is not offered for the chosen provider.
+
+            - `PASSTHROUGH_CREDENTIALS_INVALID` — Read errors[] — it names each passthrough credential field that is missing or conflicting. Which fields are required varies by provider.
+
+            - `TRANSACTION_INVALID_PARAMETER` — The transaction category could not be resolved from the request.
+
+            - `TRANSACTION_INVALID_PROVIDER` — Correct the named value and send the request again.
+
+            - `TRANSACTION_PROPERTY_COMBINATION_NOT_SUPPORTED_BY_SERVICE_PROVIDER` — Not supported for this provider or combination. Choose another.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: 'Any of:
+
+
+                      - `ACCOUNT_OFFRAMP_NOT_ENABLED`
+
+                      - `ACCOUNT_ONRAMP_NOT_ENABLED`
+
+                      - `BAD_REQUEST`
+
+                      - `INCOMPATIBLE_REQUEST`
+
+                      - `INVALID_AMOUNT`
+
+                      - `INVALID_AMOUNT_OR_CURRENCY`
+
+                      - `INVALID_AMOUNT_TOO_HIGH`
+
+                      - `INVALID_AMOUNT_TOO_LOW`
+
+                      - `INVALID_CRYPTO_CURRENCY`
+
+                      - `INVALID_QUERY_PARAMETER`
+
+                      - `NOT_SUPPORTED`
+
+                      - `PASSTHROUGH_CREDENTIALS_INVALID`
+
+                      - `TRANSACTION_INVALID_PARAMETER`
+
+                      - `TRANSACTION_INVALID_PROVIDER`
+
+                      - `TRANSACTION_PROPERTY_COMBINATION_NOT_SUPPORTED_BY_SERVICE_PROVIDER`'
+                  errors:
+                    type: array
+                    description: 'Any of:
+
+
+                      - `[countryCode] must not be null`
+
+                      - `[destinationCurrencyCode] must not be blank`
+
+                      - `[sourceAmount] DecimalMin (value = "0.0", inclusive = false); must not be null`
+
+                      - `[sourceCurrencyCode] must not be blank`
+
+                      - `[Meld-Version] is invalid`
+
+                      - `[includeSwap] is invalid`
+
+                      - `Cannot use both passthrough key private and oauth at the same time`
+
+                      - `Missing either passthrough key private or oauth`
+
+                      - `Missing passthrough key id`
+
+                      - `Missing passthrough key private`
+
+                      - `Missing passthrough key public`
+
+                      - `Missing passthrough oauth`
+
+                      - `Missing passthrough reference`
+
+                      - `Missing service provider`'
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    description: 'Any of:
+
+
+                      - Bad request
+
+                      - Buying crypto is not enabled for your account, please enable it on the Meld dashboard to receive quotes.
+
+                      - Incompatible request: Body does not match service providers
+
+                      - Invalid Crypto Currency requested
+
+                      - Invalid amount or currency
+
+                      - Invalid currency amount
+
+                      - Invalid parameter to create transaction
+
+                      - Invalid query parameter
+
+                      - Invalid service provider
+
+                      - Operation not supported for service provider
+
+                      - Passthrough credentials invalid
+
+                      - Property combination not supported
+
+                      - Selling crypto is not enabled for your account, please enable it on the Meld dashboard to receive quotes.
+
+                      - Source amount is above the maximum allowed
+
+                      - Source amount is below the minimum allowed'
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              examples:
+                ACCOUNT_OFFRAMP_NOT_ENABLED:
+                  value:
+                    code: ACCOUNT_OFFRAMP_NOT_ENABLED
+                    message: Selling crypto is not enabled for your account, please enable it on the Meld dashboard to receive quotes.
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                ACCOUNT_ONRAMP_NOT_ENABLED:
+                  value:
+                    code: ACCOUNT_ONRAMP_NOT_ENABLED
+                    message: Buying crypto is not enabled for your account, please enable it on the Meld dashboard to receive quotes.
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                BAD_REQUEST:
+                  value:
+                    code: BAD_REQUEST
+                    message: Bad request
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                INCOMPATIBLE_REQUEST:
+                  value:
+                    code: INCOMPATIBLE_REQUEST
+                    message: 'Incompatible request: Body does not match service providers'
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                INVALID_AMOUNT:
+                  value:
+                    code: INVALID_AMOUNT
+                    message: Invalid currency amount
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                INVALID_AMOUNT_OR_CURRENCY:
+                  value:
+                    code: INVALID_AMOUNT_OR_CURRENCY
+                    message: Invalid amount or currency
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                INVALID_AMOUNT_TOO_HIGH:
+                  value:
+                    code: INVALID_AMOUNT_TOO_HIGH
+                    message: Source amount is above the maximum allowed
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                INVALID_AMOUNT_TOO_LOW:
+                  value:
+                    code: INVALID_AMOUNT_TOO_LOW
+                    message: Source amount is below the minimum allowed
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                INVALID_CRYPTO_CURRENCY:
+                  value:
+                    code: INVALID_CRYPTO_CURRENCY
+                    message: Invalid Crypto Currency requested
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                INVALID_QUERY_PARAMETER:
+                  value:
+                    code: INVALID_QUERY_PARAMETER
+                    message: Invalid query parameter
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                NOT_SUPPORTED:
+                  value:
+                    code: NOT_SUPPORTED
+                    message: Operation not supported for service provider
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                PASSTHROUGH_CREDENTIALS_INVALID:
+                  value:
+                    code: PASSTHROUGH_CREDENTIALS_INVALID
+                    message: Passthrough credentials invalid
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                TRANSACTION_INVALID_PARAMETER:
+                  value:
+                    code: TRANSACTION_INVALID_PARAMETER
+                    message: Invalid parameter to create transaction
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                TRANSACTION_INVALID_PROVIDER:
+                  value:
+                    code: TRANSACTION_INVALID_PROVIDER
+                    message: Invalid service provider
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                TRANSACTION_PROPERTY_COMBINATION_NOT_SUPPORTED_BY_SERVICE_PROVIDER:
+                  value:
+                    code: TRANSACTION_PROPERTY_COMBINATION_NOT_SUPPORTED_BY_SERVICE_PROVIDER
+                    message: Property combination not supported
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+        '500':
+          description: 'Server Error. This applies to all 5xx errors, including but not limited to 500, 501, 502, 503, and 504 errors. You should treat all of these errors the same.
+
+
+            - `SERVICE_PROVIDER_ERROR` — The provider failed while quoting. Retry, then contact Meld support with the requestId.
+
+            - `TRANSACTION_FAILED_GETTING_CRYPTO_QUOTE` — The provider returned no quote where one was expected. Contact Meld support with the requestId.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: 'Any of:
+
+
+                      - `SERVICE_PROVIDER_ERROR`
+
+                      - `TRANSACTION_FAILED_GETTING_CRYPTO_QUOTE`'
+                  message:
+                    type: string
+                    description: 'Any of:
+
+
+                      - Failed getting crypto quote
+
+                      - Service Provider Error'
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              examples:
+                SERVICE_PROVIDER_ERROR:
+                  value:
+                    code: SERVICE_PROVIDER_ERROR
+                    message: Service Provider Error
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                TRANSACTION_FAILED_GETTING_CRYPTO_QUOTE:
+                  value:
+                    code: TRANSACTION_FAILED_GETTING_CRYPTO_QUOTE
+                    message: Failed getting crypto quote
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+        '404':
+          description: 'Resource Not Found
+
+
+            No provider could produce a quote for this combination. Adjust the amount, currency pair or country, or request a different provider.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`NOT_FOUND`'
+                  message:
+                    type: string
+                    description: Resource Not Found
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: NOT_FOUND
+                message: Resource Not Found
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+        '408':
+          description: 'Service provider took too long to respond
+
+
+            Providers did not respond in time. Retry with backoff.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`QUOTE_TIMEOUT`'
+                  message:
+                    type: string
+                    description: Service provider took too long to respond
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: QUOTE_TIMEOUT
+                message: Service provider took too long to respond
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+        '422':
+          description: 'Failed getting crypto quote from provider
+
+
+            No provider returned a quote and none reported a reason. Adjust the amount, currency pair or country, or request a different provider.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`TRANSACTION_FAILED_GETTING_CRYPTO_QUOTE_FROM_PROVIDER`'
+                  message:
+                    type: string
+                    description: Failed getting crypto quote from provider
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: TRANSACTION_FAILED_GETTING_CRYPTO_QUOTE_FROM_PROVIDER
+                message: Failed getting crypto quote from provider
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+        '409':
+          description: 'Conflict
+
+
+            Resolve the conflicting state, then retry.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`CONFLICT`'
+                  message:
+                    type: string
+                    description: Conflict
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: CONFLICT
+                message: Conflict
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+      security:
+      - ApiKeyAuth: []
+      x-mint:
+        href: /api-reference/crypto/retail-ramp/crypto-quote-get
+  /crypto/session/widget:
+    post:
+      tags:
+      - Retail Ramp
+      summary: Create a crypto widget
+      description: Use this endpoint to create a crypto widget for a session to buy or sell crypto.
+      operationId: /crypto-session-widget-create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionTokenForWidgetRequestV20231219'
+            example:
+              sessionType: BUY
+              sessionData:
+                serviceProvider: TOPPER
+                countryCode: US
+                sourceCurrencyCode: USD
+                sourceAmount: '100'
+                destinationCurrencyCode: BTC
+                walletAddress: bc1qr74wmrcwqq9w5yxczxj6udts9mnqsh3xlhk5yp
+              externalSessionId: example-session-id
+              externalCustomerId: example-customer-id
+        required: true
+      responses:
+        '200':
+          description: Widget created
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/SessionTokenResponse'
+        '403':
+          description: 'Unauthenticated or authenticated with insufficient access
+
+
+            The customer has not met this provider''s verification requirements. Read errors[] for the unsatisfied fields, then call the requirements endpoint named in the message for what the provider needs.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`VERIFICATION_REQUIRED`'
+                  message:
+                    type: string
+                    description: Customer verification is required for this service provider
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: VERIFICATION_REQUIRED
+                message: Customer verification is required for this service provider
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+        '401':
+          description: 'Invalid credentials
+
+
+            Meld could not authenticate with the provider. Your credentials are not at fault — contact Meld support with the requestId.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`SERVICE_PROVIDER_AUTHENTICATION_EXCEPTION`'
+                  message:
+                    type: string
+                    description: Authentication error on service provider
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: SERVICE_PROVIDER_AUTHENTICATION_EXCEPTION
+                message: Authentication error on service provider
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+        '400':
+          description: 'Bad Request : check request values and format
+
+
+            - `ACCOUNT_OFFRAMP_NOT_ENABLED` — Offramp is not enabled for this account. Enable it on the Meld dashboard.
+
+            - `ACCOUNT_ONRAMP_NOT_ENABLED` — Onramp is not enabled for this account. Enable it on the Meld dashboard.
+
+            - `BAD_REQUEST` — Send either customerId or externalCustomerId — this operation needs one of them and neither was supplied.
+
+            - `CUSTOMER_KYC_NOT_APPROVED` — bypassKyc requires a customer with approved KYC at a provider. Complete KYC first.
+
+            - `CUSTOMER_NOT_FOUND` — bypassKyc needs a valid customerId or externalCustomerId, and neither resolved.
+
+            - `DUPLICATE_EXTERNAL_SESSION_ID` — A session already exists with this externalSessionId. Reuse it, or send a new identifier.
+
+            - `INCOMPATIBLE_REQUEST` — The values are individually valid but cannot be used together by this provider. Change the combination — currency pair, payment method or country — or request a different provider.
+
+            - `INVALID_AMOUNT` — A provider rejected the amount for this route. Adjust it and request a new quote.
+
+            - `INVALID_AMOUNT_OR_CURRENCY` — Correct the named value and send the request again.
+
+            - `INVALID_AMOUNT_TOO_HIGH` — The amount is above the maximum for every provider that covers this route. Lower it.
+
+            - `INVALID_AMOUNT_TOO_LOW` — The amount is below the minimum for every provider that covers this route. Raise it.
+
+            - `INVALID_CRYPTO_CURRENCY` — Correct the named value and send the request again.
+
+            - `INVALID_FIAT_CURRENCY` — The fiat currency code is not one Meld supports. Check it against the supported-fiat list.
+
+            - `INVALID_QUERY_PARAMETER` — Read errors[] — it names each query parameter that failed validation.
+
+            - `NOT_SUPPORTED` — This quote type is not offered for the chosen provider.
+
+            - `PASSTHROUGH_CREDENTIALS_INVALID` — Read errors[] — it names each passthrough credential field that is missing or conflicting. Which fields are required varies by provider.
+
+            - `TRANSACTION_INVALID_PARAMETER` — The transaction category could not be resolved from the request.
+
+            - `TRANSACTION_INVALID_PROVIDER` — Correct the named value and send the request again.
+
+            - `TRANSACTION_PROPERTY_COMBINATION_NOT_SUPPORTED_BY_SERVICE_PROVIDER` — Not supported for this provider or combination. Choose another.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: 'Any of:
+
+
+                      - `ACCOUNT_OFFRAMP_NOT_ENABLED`
+
+                      - `ACCOUNT_ONRAMP_NOT_ENABLED`
+
+                      - `BAD_REQUEST`
+
+                      - `CUSTOMER_KYC_NOT_APPROVED`
+
+                      - `CUSTOMER_NOT_FOUND`
+
+                      - `DUPLICATE_EXTERNAL_SESSION_ID`
+
+                      - `INCOMPATIBLE_REQUEST`
+
+                      - `INVALID_AMOUNT`
+
+                      - `INVALID_AMOUNT_OR_CURRENCY`
+
+                      - `INVALID_AMOUNT_TOO_HIGH`
+
+                      - `INVALID_AMOUNT_TOO_LOW`
+
+                      - `INVALID_CRYPTO_CURRENCY`
+
+                      - `INVALID_FIAT_CURRENCY`
+
+                      - `INVALID_QUERY_PARAMETER`
+
+                      - `NOT_SUPPORTED`
+
+                      - `PASSTHROUGH_CREDENTIALS_INVALID`
+
+                      - `TRANSACTION_INVALID_PARAMETER`
+
+                      - `TRANSACTION_INVALID_PROVIDER`
+
+                      - `TRANSACTION_PROPERTY_COMBINATION_NOT_SUPPORTED_BY_SERVICE_PROVIDER`'
+                  errors:
+                    type: array
+                    description: 'Any of:
+
+
+                      - `[Meld-Version] is invalid`
+
+                      - `Cannot use both passthrough key private and oauth at the same time`
+
+                      - `Missing either passthrough key private or oauth`
+
+                      - `Missing passthrough key id`
+
+                      - `Missing passthrough key private`
+
+                      - `Missing passthrough key public`
+
+                      - `Missing passthrough oauth`
+
+                      - `Missing passthrough reference`
+
+                      - `Missing service provider`'
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    description: 'Any of:
+
+
+                      - Bad request
+
+                      - Buying crypto is not enabled for your account, please enable it on the Meld dashboard to receive quotes.
+
+                      - Customer has not completed KYC verification
+
+                      - Customer not found
+
+                      - Duplicate external session ID
+
+                      - Incompatible request: Body does not match service providers
+
+                      - Invalid Crypto Currency requested
+
+                      - Invalid Fiat Currency requested
+
+                      - Invalid amount or currency
+
+                      - Invalid currency amount
+
+                      - Invalid parameter to create transaction
+
+                      - Invalid query parameter
+
+                      - Invalid service provider
+
+                      - Operation not supported for service provider
+
+                      - Passthrough credentials invalid
+
+                      - Property combination not supported
+
+                      - Selling crypto is not enabled for your account, please enable it on the Meld dashboard to receive quotes.
+
+                      - Source amount is above the maximum allowed
+
+                      - Source amount is below the minimum allowed'
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              examples:
+                ACCOUNT_OFFRAMP_NOT_ENABLED:
+                  value:
+                    code: ACCOUNT_OFFRAMP_NOT_ENABLED
+                    message: Selling crypto is not enabled for your account, please enable it on the Meld dashboard to receive quotes.
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                ACCOUNT_ONRAMP_NOT_ENABLED:
+                  value:
+                    code: ACCOUNT_ONRAMP_NOT_ENABLED
+                    message: Buying crypto is not enabled for your account, please enable it on the Meld dashboard to receive quotes.
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                BAD_REQUEST:
+                  value:
+                    code: BAD_REQUEST
+                    message: Bad request
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                CUSTOMER_KYC_NOT_APPROVED:
+                  value:
+                    code: CUSTOMER_KYC_NOT_APPROVED
+                    message: Customer has not completed KYC verification
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                CUSTOMER_NOT_FOUND:
+                  value:
+                    code: CUSTOMER_NOT_FOUND
+                    message: Customer not found
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                DUPLICATE_EXTERNAL_SESSION_ID:
+                  value:
+                    code: DUPLICATE_EXTERNAL_SESSION_ID
+                    message: Duplicate external session ID
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                INCOMPATIBLE_REQUEST:
+                  value:
+                    code: INCOMPATIBLE_REQUEST
+                    message: 'Incompatible request: Body does not match service providers'
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                INVALID_AMOUNT:
+                  value:
+                    code: INVALID_AMOUNT
+                    message: Invalid currency amount
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                INVALID_AMOUNT_OR_CURRENCY:
+                  value:
+                    code: INVALID_AMOUNT_OR_CURRENCY
+                    message: Invalid amount or currency
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                INVALID_AMOUNT_TOO_HIGH:
+                  value:
+                    code: INVALID_AMOUNT_TOO_HIGH
+                    message: Source amount is above the maximum allowed
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                INVALID_AMOUNT_TOO_LOW:
+                  value:
+                    code: INVALID_AMOUNT_TOO_LOW
+                    message: Source amount is below the minimum allowed
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                INVALID_CRYPTO_CURRENCY:
+                  value:
+                    code: INVALID_CRYPTO_CURRENCY
+                    message: Invalid Crypto Currency requested
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                INVALID_FIAT_CURRENCY:
+                  value:
+                    code: INVALID_FIAT_CURRENCY
+                    message: Invalid Fiat Currency requested
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                INVALID_QUERY_PARAMETER:
+                  value:
+                    code: INVALID_QUERY_PARAMETER
+                    message: Invalid query parameter
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                NOT_SUPPORTED:
+                  value:
+                    code: NOT_SUPPORTED
+                    message: Operation not supported for service provider
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                PASSTHROUGH_CREDENTIALS_INVALID:
+                  value:
+                    code: PASSTHROUGH_CREDENTIALS_INVALID
+                    message: Passthrough credentials invalid
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                TRANSACTION_INVALID_PARAMETER:
+                  value:
+                    code: TRANSACTION_INVALID_PARAMETER
+                    message: Invalid parameter to create transaction
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                TRANSACTION_INVALID_PROVIDER:
+                  value:
+                    code: TRANSACTION_INVALID_PROVIDER
+                    message: Invalid service provider
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                TRANSACTION_PROPERTY_COMBINATION_NOT_SUPPORTED_BY_SERVICE_PROVIDER:
+                  value:
+                    code: TRANSACTION_PROPERTY_COMBINATION_NOT_SUPPORTED_BY_SERVICE_PROVIDER
+                    message: Property combination not supported
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+        '500':
+          description: 'Server Error. This applies to all 5xx errors, including but not limited to 500, 501, 502, 503, and 504 errors. You should treat all of these errors the same.
+
+
+            - `KYC_TOKEN_GENERATION_FAILED` — The customer''s KYC is approved; generating the share token failed on Meld''s side. Contact Meld support with the requestId.
+
+            - `PRIOR_AUTHENTICATION_ERROR` — No stored provider authorisation matches the id supplied for this customer.
+
+            - `SERVICE_PROVIDER_ERROR` — The provider failed while quoting. Retry, then contact Meld support with the requestId.
+
+            - `TRANSACTION_EXCEPTION` — The provider''s widget URL could not be resolved for this session. Start a new session; if it persists, contact Meld support with the requestId.
+
+            - `TRANSACTION_FAILED_GETTING_CRYPTO_QUOTE` — The provider returned no quote where one was expected. Contact Meld support with the requestId.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: 'Any of:
+
+
+                      - `KYC_TOKEN_GENERATION_FAILED`
+
+                      - `PRIOR_AUTHENTICATION_ERROR`
+
+                      - `SERVICE_PROVIDER_ERROR`
+
+                      - `TRANSACTION_EXCEPTION`
+
+                      - `TRANSACTION_FAILED_GETTING_CRYPTO_QUOTE`'
+                  message:
+                    type: string
+                    description: 'Any of:
+
+
+                      - Error retrieving prior authentication
+
+                      - Exception in transaction
+
+                      - Failed getting crypto quote
+
+                      - Failed to generate KYC share token
+
+                      - Service Provider Error'
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              examples:
+                KYC_TOKEN_GENERATION_FAILED:
+                  value:
+                    code: KYC_TOKEN_GENERATION_FAILED
+                    message: Failed to generate KYC share token
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                PRIOR_AUTHENTICATION_ERROR:
+                  value:
+                    code: PRIOR_AUTHENTICATION_ERROR
+                    message: Error retrieving prior authentication
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                SERVICE_PROVIDER_ERROR:
+                  value:
+                    code: SERVICE_PROVIDER_ERROR
+                    message: Service Provider Error
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                TRANSACTION_EXCEPTION:
+                  value:
+                    code: TRANSACTION_EXCEPTION
+                    message: Exception in transaction
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                TRANSACTION_FAILED_GETTING_CRYPTO_QUOTE:
+                  value:
+                    code: TRANSACTION_FAILED_GETTING_CRYPTO_QUOTE
+                    message: Failed getting crypto quote
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+        '404':
+          description: 'Resource Not Found
+
+
+            No provider could produce a quote for this combination. Adjust the amount, currency pair or country, or request a different provider.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`NOT_FOUND`'
+                  message:
+                    type: string
+                    description: Resource Not Found
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: NOT_FOUND
+                message: Resource Not Found
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+        '408':
+          description: 'Service provider took too long to respond
+
+
+            Providers did not respond in time. Retry with backoff.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`QUOTE_TIMEOUT`'
+                  message:
+                    type: string
+                    description: Service provider took too long to respond
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: QUOTE_TIMEOUT
+                message: Service provider took too long to respond
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+        '422':
+          description: 'Failed getting crypto quote from provider
+
+
+            No provider returned a quote and none reported a reason. Adjust the amount, currency pair or country, or request a different provider.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`TRANSACTION_FAILED_GETTING_CRYPTO_QUOTE_FROM_PROVIDER`'
+                  message:
+                    type: string
+                    description: Failed getting crypto quote from provider
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: TRANSACTION_FAILED_GETTING_CRYPTO_QUOTE_FROM_PROVIDER
+                message: Failed getting crypto quote from provider
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+        '409':
+          description: 'Conflict
+
+
+            Resolve the conflicting state, then retry.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`CONFLICT`'
+                  message:
+                    type: string
+                    description: Conflict
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: CONFLICT
+                message: Conflict
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+      security:
+      - ApiKeyAuth: []
+      x-mint:
+        href: /api-reference/crypto/retail-ramp/crypto-session-widget-create
+      parameters:
+      - name: Meld-Version
+        in: header
+        description: Dated API version to use for this request, e.g. `2026-02-03`.
+        required: false
+        schema:
+          type: string
+          example: '2026-02-03'
+  /payments/transactions/{id}:
+    get:
+      tags:
+      - Retail Ramp
+      summary: Get transaction by id
+      description: Search transaction by its Meld identifier
+      operationId: /payments-transactions-get
+      parameters:
+      - name: Meld-Version
+        in: header
+        description: Dated API version to use for this request, e.g. `2026-02-03`.
+        required: false
+        schema:
+          type: string
+          example: '2026-02-03'
+      - name: id
+        in: path
+        description: Unique identifier of the transaction to be fetched
+        required: true
+        schema:
+          type: string
+          default: ''
+      responses:
+        '200':
+          description: Payment found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/PaymentTransactionResponse20250304'
+        '404':
+          description: 'Payment transaction with the id informed was not found
+
+
+            Verify the identifier in the request.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`NOT_FOUND`'
+                  message:
+                    type: string
+                    description: Resource not found
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: NOT_FOUND
+                message: Resource not found
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+        '403':
+          description: 'Unauthenticated or authenticated with insufficient access
+
+
+            Check the account''s permissions for this operation.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`FORBIDDEN`'
+                  message:
+                    type: string
+                    description: Access denied
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: FORBIDDEN
+                message: Access denied
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+        '401':
+          description: 'Invalid credentials
+
+
+            Check the API credentials being sent.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`UNAUTHORIZED`'
+                  message:
+                    type: string
+                    description: Access denied
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: UNAUTHORIZED
+                message: Access denied
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+        '400':
+          description: 'Bad Request : check request values and format
+
+
+            - `PASSTHROUGH_CREDENTIALS_INVALID` — Read errors[] — it names each passthrough credential field that is missing or conflicting. Which fields are required varies by provider.
+
+            - `TRANSACTION_INVALID_PROVIDER` — Correct the named value and send the request again.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: 'Any of:
+
+
+                      - `PASSTHROUGH_CREDENTIALS_INVALID`
+
+                      - `TRANSACTION_INVALID_PROVIDER`'
+                  errors:
+                    type: array
+                    description: 'Any of:
+
+
+                      - `[Meld-Version] is invalid`
+
+                      - `Required parameter [id] is missing`
+
+                      - `Cannot use both passthrough key private and oauth at the same time`
+
+                      - `Missing either passthrough key private or oauth`
+
+                      - `Missing passthrough key id`
+
+                      - `Missing passthrough key private`
+
+                      - `Missing passthrough key public`
+
+                      - `Missing passthrough oauth`
+
+                      - `Missing passthrough reference`
+
+                      - `Missing service provider`'
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    description: 'Any of:
+
+
+                      - Invalid service provider
+
+                      - Passthrough credentials invalid'
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              examples:
+                PASSTHROUGH_CREDENTIALS_INVALID:
+                  value:
+                    code: PASSTHROUGH_CREDENTIALS_INVALID
+                    message: Passthrough credentials invalid
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                TRANSACTION_INVALID_PROVIDER:
+                  value:
+                    code: TRANSACTION_INVALID_PROVIDER
+                    message: Invalid service provider
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+        '500':
+          description: 'Server Error. This applies to all 5xx errors, including but not limited to 500, 501, 502, 503, and 504 errors. You should treat all of these errors the same.
+
+
+            The provider could not be reached to read this transaction. Retry — the transaction itself is unaffected.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`TRANSACTION_EXCEPTION`'
+                  message:
+                    type: string
+                    description: Exception in transaction
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: TRANSACTION_EXCEPTION
+                message: Exception in transaction
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+        '409':
+          description: 'Conflict
+
+
+            Read message — it names which condition applied, from the values listed under `message`.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`CONFLICT`'
+                  message:
+                    type: string
+                    description: Conflict
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: CONFLICT
+                message: Conflict
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+        '408':
+          description: Request timeout
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: Stable identifier for the failure.
+                  message:
+                    type: string
+                    description: A description of what went wrong.
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+        '422':
+          description: Unprocessable entity
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: Stable identifier for the failure.
+                  message:
+                    type: string
+                    description: A description of what went wrong.
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+      security:
+      - ApiKeyAuth: []
+      x-mint:
+        href: /api-reference/crypto/retail-ramp/payments-transactions-get
+  /payments/transactions:
+    get:
+      tags:
+      - Retail Ramp
+      summary: Search transactions
+      description: Search a list of transactions you've previously created. The transactions are ordered by the date of creation.
+      operationId: /payments-transactions-search
+      parameters:
+      - name: Meld-Version
+        in: header
+        description: Dated API version to use for this request, e.g. `2026-02-03`.
+        required: false
+        schema:
+          type: string
+          example: '2026-02-03'
+      - name: statuses
+        in: query
+        description: 'Comma separated list of transaction status.
+
+
+          If present, only transactions with the specified status will be included.
+
+
+          *Possible values*:
+
+
+          PENDING_CREATED
+
+
+          PENDING
+
+
+          PROCESSING
+
+
+          AUTHORIZED
+
+
+          AUTHORIZATION_EXPIRED
+
+
+          SETTLING
+
+
+          ONRAMP_SETTLED
+
+
+          SETTLED
+
+
+          REFUNDED
+
+
+          DECLINED
+
+
+          CANCELLED
+
+
+          FAILED
+
+
+          ERROR
+
+
+          VOIDED
+
+
+          TWO_FA_REQUIRED
+
+
+          TWO_FA_PROVIDED'
+        required: false
+        schema:
+          type: string
+          default: ''
+      - name: serviceProviders
+        in: query
+        description: 'Comma separated list of service providers.
+
+
+          Return only transactions with these specific providers. You can specify multiple service providers in the query string and separate them with commas
+
+
+          Reference [Crypto supported service providers](https://docs.meld.io/docs/crypto-supported-service-providers-assets) and [Fiat supported service providers](https://docs.meld.io/docs/fiat-supported-service-providers) for a full list of supported service providers'
+        required: false
+        schema:
+          type: string
+          default: ''
+      - name: limit
+        in: query
+        description: 'Limits number of returned accounts.
+
+
+          *Default value*: 10 or the number of ids provided
+
+
+          *Minimum value*: 1
+
+
+          *Maximum value*: 100'
+        required: false
+        schema:
+          type: string
+          default: ''
+      - name: amountFrom
+        in: query
+        description: Return only transactions with the amount equal to or greater than this amount
+        required: false
+        schema:
+          type: string
+          default: ''
+      - name: amountTo
+        in: query
+        description: Return only transactions with the amount equal to or less than this amount
+        required: false
+        schema:
+          type: string
+          default: ''
+      - name: from
+        in: query
+        description: 'Return only transactions created after this DateTime. The correct string will use the ISO DateTime or ISO Date Format.
+
+
+          Ex:2021-08-31T01:30:00 or 2022-02-25 are accepted'
+        required: false
+        schema:
+          type: string
+          default: ''
+      - name: to
+        in: query
+        description: 'Return only transactions created before this DateTime. The correct string will use the ISO DateTime or ISO Date Format.
+
+
+          Ex:2021-08-31T01:30:00 or 2022-02-25 are accepted'
+        required: false
+        schema:
+          type: string
+          default: ''
+      - name: before
+        in: query
+        description: 'The unique key corresponding to a payment transaction''s position in the paginated list of results -- used to indicate that only payment transactions residing before this key will be retrieved.
+
+
+          Each payment transaction carries a unique key. Reference [Pagination](https://docs.meld.io/docs/pagination)The before and after fields cannot be used in the same request.'
+        required: false
+        schema:
+          type: string
+          default: ''
+      - name: after
+        in: query
+        description: 'The unique key corresponding to a payment transaction''s position in the paginated list of results -- used to indicate that only payment transactions residing after this key will be retrieved.
+
+
+          Each payment transaction carries a unique key. Reference [Pagination](https://docs.meld.io/docs/pagination)The before and after fields cannot be used in the same request.'
+        required: false
+        schema:
+          type: string
+          default: ''
+      - name: apiAccessProfileIds
+        in: query
+        description: Comma separated list of API access profile ids
+        required: false
+        schema:
+          type: string
+          default: ''
+      - name: customerIds
+        in: query
+        description: Meld generated unique identifier for your customer. This should be used to track customer activity. This takes a comma separated list of customer ids.
+        required: false
+        schema:
+          type: string
+          default: ''
+      - name: externalCustomerIds
+        in: query
+        description: Your unique identifier for your customer. If maintaining your own customer management system this can also be used for tracking customer activity. This takes a comma separated list of external customer ids.
+        required: false
+        schema:
+          type: string
+          default: ''
+      - name: sessionIds
+        in: query
+        description: Comma separated list of session ids
+        required: false
+        schema:
+          type: string
+          default: ''
+      - name: externalSessionIds
+        in: query
+        description: Comma separated list of external session ids
+        required: false
+        schema:
+          type: string
+          default: ''
+      - name: externalReferenceIds
+        in: query
+        description: Comma separated list of reference ids
+        required: false
+        schema:
+          type: string
+          default: ''
+      - name: types
+        in: query
+        description: Comma separated list of transaction types
+        required: false
+        schema:
+          type: string
+          default: ''
+      - name: orderIds
+        in: query
+        description: Comma separated list of order ids (for virtual account ramp)
+        required: false
+        schema:
+          type: string
+          default: ''
+      - name: serviceProviderTransactionId
+        in: query
+        description: service provider transaction id
+        required: false
+        schema:
+          type: string
+          default: ''
+      - name: subaccountCustomerIds
+        in: query
+        description: Comma-separated list of sub-account customer ids.
+        required: false
+        schema:
+          type: string
+          default: ''
+      - name: externalSubaccountCustomerIds
+        in: query
+        description: Comma-separated list of external sub-account customer ids.
+        required: false
+        schema:
+          type: string
+          default: ''
+      responses:
+        '200':
+          description: Payment transaction found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/PaymentTransactionListResponse20250304'
+        '403':
+          description: 'Unauthenticated or authenticated with insufficient access
+
+
+            Check the account''s permissions for this operation.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`FORBIDDEN`'
+                  message:
+                    type: string
+                    description: Access denied
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: FORBIDDEN
+                message: Access denied
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+        '401':
+          description: 'Invalid credentials
+
+
+            Check the API credentials being sent.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`UNAUTHORIZED`'
+                  message:
+                    type: string
+                    description: Access denied
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: UNAUTHORIZED
+                message: Access denied
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+        '400':
+          description: 'Bad Request : check request values and format
+
+
+            - `BAD_REQUEST` — Send customerIds or externalCustomerIds, not both.
+
+            - `INVALID_QUERY_PARAMETER` — Read errors[] — it names each search parameter that failed validation.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: 'Any of:
+
+
+                      - `BAD_REQUEST`
+
+                      - `INVALID_QUERY_PARAMETER`'
+                  errors:
+                    type: array
+                    description: 'Any of:
+
+
+                      - `[Meld-Version] is invalid`
+
+                      - `[statuses] is invalid`
+
+                      - `[serviceProviders] is invalid`
+
+                      - `[limit] is invalid`
+
+                      - `[amountFrom] is invalid`
+
+                      - `[amountTo] is invalid`
+
+                      - `[from] is invalid`
+
+                      - `[to] is invalid`
+
+                      - `[before] is invalid`
+
+                      - `[after] is invalid`
+
+                      - `[apiAccessProfileIds] is invalid`
+
+                      - `[customerIds] is invalid`
+
+                      - `[externalCustomerIds] is invalid`
+
+                      - `[sessionIds] is invalid`
+
+                      - `[externalSessionIds] is invalid`
+
+                      - `[externalReferenceIds] is invalid`
+
+                      - `[types] is invalid`
+
+                      - `[orderIds] is invalid`
+
+                      - `[serviceProviderTransactionId] is invalid`
+
+                      - `[subaccountCustomerIds] is invalid`
+
+                      - `[externalSubaccountCustomerIds] is invalid`'
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    description: 'Any of:
+
+
+                      - Bad request
+
+                      - Invalid query parameter'
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              examples:
+                BAD_REQUEST:
+                  value:
+                    code: BAD_REQUEST
+                    message: Bad request
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                INVALID_QUERY_PARAMETER:
+                  value:
+                    code: INVALID_QUERY_PARAMETER
+                    message: Invalid query parameter
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+        '500':
+          description: 'Server Error. This applies to all 5xx errors, including but not limited to 500, 501, 502, 503, and 504 errors. You should treat all of these errors the same.
+
+
+            The query failed on Meld''s side and nothing was changed. Contact Meld support with the requestId.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`FAILED_GETTING_TRANSACTION`'
+                  message:
+                    type: string
+                    description: Failed getting transaction
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: FAILED_GETTING_TRANSACTION
+                message: Failed getting transaction
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+        '404':
+          description: 'Not found
+
+
+            Verify the identifier in the request.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`NOT_FOUND`'
+                  message:
+                    type: string
+                    description: Resource not found
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: NOT_FOUND
+                message: Resource not found
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+        '408':
+          description: Request timeout
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: Stable identifier for the failure.
+                  message:
+                    type: string
+                    description: A description of what went wrong.
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+        '409':
+          description: 'Conflict
+
+
+            Resolve the conflicting state, then retry.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`CONFLICT`'
+                  message:
+                    type: string
+                    description: Conflict
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: CONFLICT
+                message: Conflict
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+        '422':
+          description: Unprocessable entity
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: Stable identifier for the failure.
+                  message:
+                    type: string
+                    description: A description of what went wrong.
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+      security:
+      - ApiKeyAuth: []
+      x-mint:
+        href: /api-reference/crypto/retail-ramp/payments-transactions-search
+  /payments/transactions/sessions/{sessionId}:
+    get:
+      tags:
+      - Retail Ramp
+      summary: Fetch a transaction from the provider (for offramp use)
+      description: Fetch a transaction from the service provider using the session ID. This endpoint is primarily used for offramp scenarios where the transaction needs to be retrieved from the provider after the user completes their action in the widget.
+      operationId: /payments-transactions-sessions-get
+      parameters:
+      - name: Meld-Version
+        in: header
+        description: Dated API version to use for this request, e.g. `2026-02-03`.
+        required: false
+        schema:
+          type: string
+          example: '2026-02-03'
+      - name: sessionId
+        in: path
+        description: Session ID to fetch the transaction for
+        required: true
+        schema:
+          type: string
+          default: ''
+      responses:
+        '200':
+          description: Transaction found and retrieved from provider
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/PaymentTransactionResponse20250304'
+        '404':
+          description: 'Session not found or transaction not yet created with provider
+
+
+            - `TRANSACTION_FETCH_BY_SESSION_NOT_YET_CREATED_WITH_PROVIDER` — Temporary, not permanent: the transaction does not exist yet. Keep polling — it appears once the provider creates it.
+
+            - `TRANSACTION_FETCH_BY_SESSION_PROVIDER_UNSUPPORTED` — This provider cannot look a transaction up by sessionId before it exists. Wait for it to be created, then fetch it.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: 'Any of:
+
+
+                      - `TRANSACTION_FETCH_BY_SESSION_NOT_YET_CREATED_WITH_PROVIDER`
+
+                      - `TRANSACTION_FETCH_BY_SESSION_PROVIDER_UNSUPPORTED`'
+                  message:
+                    type: string
+                    description: 'Any of:
+
+
+                      - Provider doesn''t support fetching a transaction by session until it is created with Meld
+
+                      - Transaction associated with this session/order has not been created with the service provider yet'
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              examples:
+                TRANSACTION_FETCH_BY_SESSION_NOT_YET_CREATED_WITH_PROVIDER:
+                  value:
+                    code: TRANSACTION_FETCH_BY_SESSION_NOT_YET_CREATED_WITH_PROVIDER
+                    message: Transaction associated with this session/order has not been created with the service provider yet
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                TRANSACTION_FETCH_BY_SESSION_PROVIDER_UNSUPPORTED:
+                  value:
+                    code: TRANSACTION_FETCH_BY_SESSION_PROVIDER_UNSUPPORTED
+                    message: Provider doesn't support fetching a transaction by session until it is created with Meld
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+        '403':
+          description: 'Unauthenticated or authenticated with insufficient access
+
+
+            Check the account''s permissions for this operation.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`FORBIDDEN`'
+                  message:
+                    type: string
+                    description: Access denied
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: FORBIDDEN
+                message: Access denied
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+        '401':
+          description: 'Invalid credentials
+
+
+            Check the API credentials being sent.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`UNAUTHORIZED`'
+                  message:
+                    type: string
+                    description: Access denied
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: UNAUTHORIZED
+                message: Access denied
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+        '400':
+          description: 'Bad Request : check request values and format
+
+
+            - `NOT_SUPPORTED` — This provider does not support fetching a transaction this way. Use the headless order endpoints instead.
+
+            - `PASSTHROUGH_CREDENTIALS_INVALID` — Read errors[] — it names each passthrough credential field that is missing or conflicting. Which fields are required varies by provider.
+
+            - `TRANSACTION_INVALID_PROVIDER` — Correct the named value and send the request again.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: 'Any of:
+
+
+                      - `NOT_SUPPORTED`
+
+                      - `PASSTHROUGH_CREDENTIALS_INVALID`
+
+                      - `TRANSACTION_INVALID_PROVIDER`'
+                  errors:
+                    type: array
+                    description: 'Any of:
+
+
+                      - `[Meld-Version] is invalid`
+
+                      - `Required parameter [sessionId] is missing`
+
+                      - `Cannot use both passthrough key private and oauth at the same time`
+
+                      - `Missing either passthrough key private or oauth`
+
+                      - `Missing passthrough key id`
+
+                      - `Missing passthrough key private`
+
+                      - `Missing passthrough key public`
+
+                      - `Missing passthrough oauth`
+
+                      - `Missing passthrough reference`
+
+                      - `Missing service provider`'
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    description: 'Any of:
+
+
+                      - Invalid service provider
+
+                      - Operation not supported for service provider
+
+                      - Passthrough credentials invalid'
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              examples:
+                NOT_SUPPORTED:
+                  value:
+                    code: NOT_SUPPORTED
+                    message: Operation not supported for service provider
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                PASSTHROUGH_CREDENTIALS_INVALID:
+                  value:
+                    code: PASSTHROUGH_CREDENTIALS_INVALID
+                    message: Passthrough credentials invalid
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+                TRANSACTION_INVALID_PROVIDER:
+                  value:
+                    code: TRANSACTION_INVALID_PROVIDER
+                    message: Invalid service provider
+                    requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                    timestamp: '2026-08-14T09:41:22.482+00:00'
+        '500':
+          description: 'Server Error. This applies to all 5xx errors, including but not limited to 500, 501, 502, 503, and 504 errors. You should treat all of these errors the same.
+
+
+            The provider could not be reached to read this transaction. Retry — the transaction itself is unaffected.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`TRANSACTION_EXCEPTION`'
+                  message:
+                    type: string
+                    description: Exception in transaction
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: TRANSACTION_EXCEPTION
+                message: Exception in transaction
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+        '409':
+          description: 'Conflict
+
+
+            Read message — it names which condition applied, from the values listed under `message`.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: '`CONFLICT`'
+                  message:
+                    type: string
+                    description: Conflict
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+              example:
+                code: CONFLICT
+                message: Conflict
+                requestId: 01JB2K7C9XQZ4M8N2P5R6T3V
+                timestamp: '2026-08-14T09:41:22.482+00:00'
+        '408':
+          description: Request timeout
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: Stable identifier for the failure.
+                  message:
+                    type: string
+                    description: A description of what went wrong.
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+        '422':
+          description: Unprocessable entity
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    description: Stable identifier for the failure.
+                  message:
+                    type: string
+                    description: A description of what went wrong.
+                  requestId:
+                    type: string
+                    description: Quote this when asking Meld about a specific failure.
+                  serviceProviderDetails:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: The provider's own error code, when it sent one.
+                      message:
+                        type: string
+                        description: The provider's own message.
+                    additionalProperties: {}
+                    example:
+                      code: '5034'
+                      message: Digital currency and blockchain combination is restricted for customer's country
+                    description: The provider's own error detail, when the failure came from a service provider. Usually `code` and `message`; a few providers pass their own body through, so other keys can appear.
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2026-08-14T09:41:22.482+00:00'
+                    description: When the failure occurred. ISO 8601, UTC (`YYYY-MM-DDThh:mm:ss.sss+00:00`).
+      security:
+      - ApiKeyAuth: []
+      x-mint:
+        href: /api-reference/crypto/retail-ramp/payments-transactions-sessions-get
+components:
+  schemas:
+    SearchedPaymentTransactionOutput20250304:
+      type: object
+      properties:
+        accountId:
+          type: string
+          description: Your account Id
+        apiAccessProfileId:
+          type: string
+          description: The id of the API access profile used to create this transaction. May be null if the transaction was not created via an endpoint that uses an API key for authentication. For example, when imported as a result of a webhook from a service provider.
+        countryCode:
+          type: string
+          description: The ISO 3166 2-digit country code.
+        createdAt:
+          type: string
+          format: date-time
+          description: An ISO 8601 DateTime at which the object was created.
+        cryptoDetails:
+          description: Details of the crypto currency purchase, sale, or transfer
+          allOf:
+          - $ref: '#/components/schemas/CryptoDetails20250304'
+        customer:
+          description: Your customer's details
+          allOf:
+          - $ref: '#/components/schemas/CustomerOutput'
+        description:
+          type: string
+          description: An arbitrary string which you can attach to this transaction. It is displayed when in the web interface alongside the charge.
+        destinationAmount:
+          type: number
+          description: The destination amount of the transaction, e.g. the amount of crypto currency purchased
+        destinationCurrencyCode:
+          type: string
+          description: Three-letter ISO currency code. Must be a supported currency
+        externalCustomerId:
+          type: string
+          description: Your unique identifier for your customer. If maintaining your own customer management system this can also be used for tracking customer activity.
+        externalReferenceId:
+          type: string
+          description: Your optional reference id provided during transaction creation
+        externalSessionId:
+          type: string
+          description: The external Id of the session.
+        externalSubaccountCustomerId:
+          type: string
+          description: Optional external identifier for the sub-account customer this transaction belongs to. Used for tracking when multiple businesses operate under one Meld account. A sub-account customer must be created first before it can be referenced.
+        fiatAmountInUsd:
+          type: number
+          description: The fiat amount of the transaction in usd
+        id:
+          type: string
+          description: Unique identifier for this transaction
+        isImported:
+          type: boolean
+          description: Return ***True*** if this transaction was initiated outside Meld
+        isPassthrough:
+          type: boolean
+          description: Return ***True*** if the passthrough credentials were used
+        key:
+          type: string
+          description: Pagination key, may be used with the "after" parameter in search requests.  Only set and relevant for paginated calls
+        multiFactorAuthorizationStatus:
+          type: array
+          description: The transaction required multi-factor authentication methods, and their current status. When required, must be approved for the purchase tobe completed successfully.
+          items:
+            $ref: '#/components/schemas/MultiFactorAuthorizationStatusOutput'
+          uniqueItems: true
+        orderId:
+          type: string
+          description: Unique identifier for the order associated with this transaction, when applicable
+        parentPaymentTransactionId:
+          type: string
+          description: The Id of the associated object for this line item
+        passthroughReference:
+          type: string
+          description: The unique reference you use to identify the partner on whose behalf you created this transaction.  This might be a String or UUID in your system to identify a merchant or partner.  This is needed so that you can associate passthrough transactions to your partners who may not be registered with Meld
+        paymentDetails:
+          description: payment details
+          allOf:
+          - $ref: '#/components/schemas/PaymentDetails'
+        paymentMethodType:
+          type: string
+          description: Payment Method type used for this transaction.
+        serviceProvider:
+          type: string
+          description: The service provider used for this transaction
+        serviceProviderCreatedAt:
+          type: string
+          format: date-time
+          description: The ISO 8601 DateTime when the transaction was created on the service provider's side
+        serviceProviderDetails:
+          type: object
+          additionalProperties: {}
+          description: The service provider's details
+        serviceProviderTransactionUrl:
+          type: string
+          description: A link to the resource on the Service Provider, may not be present
+        serviceTransactionId:
+          type: string
+          description: The service provider's unique identifier for this transaction
+        sessionClientTags:
+          type: object
+          additionalProperties:
+            type: string
+          description: A map of client tags
+        sessionId:
+          type: string
+          description: The Id of the session.
+        sourceAmount:
+          type: number
+          description: The amount of the transaction
+        sourceCurrencyCode:
+          type: string
+          description: Three-letter ISO currency code. Must be a supported currency
+        status:
+          type: string
+          description: The current status of the transaction
+        subaccountCustomerId:
+          type: string
+          description: Optional Meld customer id used to track the business sub-account this transaction belongs to when multiple businesses operate under one Meld account.
+        transactionType:
+          type: string
+          description: The transaction's type
+        updatedAt:
+          type: string
+          format: date-time
+          description: Time at which the object was last updated. Measured in seconds since the Unix epoch.
+      required:
+      - createdAt
+      - id
+      - serviceProvider
+      - sessionId
+      - status
+      - transactionType
+      - updatedAt
+    SessionTokenResponse:
+      type: object
+      properties:
+        customerId:
+          type: string
+          description: Meld generated unique identifier for your customer. This should be used to track customer activity.
+        externalCustomerId:
+          type: string
+          description: Your unique identifier for your customer. If maintaining your own customer management system this can also be used for tracking customer activity.
+        externalSessionId:
+          type: string
+          description: Your reference Id for your widget session
+        id:
+          type: string
+          description: Unique identifier for this session
+        serviceProviderWidgetUrl:
+          type: string
+          description: The service provider's widget URL
+        token:
+          type: string
+          description: The session token
+        widgetUrl:
+          type: string
+          description: The crypto widget URL
+    CustomerOutput:
+      type: object
+      properties:
+        accountId:
+          type: string
+          description: Your Account Id
+        addresses:
+          type: array
+          description: Your Customer's addresses, such as billing, shipping, etc.
+          items:
+            $ref: '#/components/schemas/CustomerAddressOutput'
+        email:
+          type: string
+          description: Your Customer's email address
+        externalId:
+          type: string
+          description: Your optionally supplied Id for your Customer, e.g. a Customer Id in your system
+        id:
+          type: string
+          description: Meld's internal Id for the Customer
+        name:
+          description: Your Customer's name
+          allOf:
+          - $ref: '#/components/schemas/CustomerName'
+        phone:
+          type: string
+          description: Your Customer's phone number
+        serviceProviders:
+          type: object
+          additionalProperties:
+            type: string
+          description: A map of Service Providers and service provider IDs for this Customer
+        status:
+          type: string
+          description: ACTIVE or INACTIVE, may not be set
+    PaymentTransactionResponse20250304:
+      type: object
+      properties:
+        transaction:
+          description: Payment transaction information
+          allOf:
+          - $ref: '#/components/schemas/PaymentTransactionOutput20250304'
+    PaymentTransactionOutput20250304:
+      type: object
+      properties:
+        accountId:
+          type: string
+          description: Your account Id
+        countryCode:
+          type: string
+          description: The ISO 3166 2-digit country code.
+        createdAt:
+          type: string
+          format: date-time
+          description: An ISO 8601 DateTime at which the object was created.
+        cryptoDetails:
+          description: Details of the crypto currency purchase, sale, or transfer
+          allOf:
+          - $ref: '#/components/schemas/CryptoDetails20250304'
+        customer:
+          description: Your customer's details
+        description:
+          type: string
+          description: An arbitrary string which you can attach to this transaction. It is displayed when in the web interface alongside the charge.
+        destinationAmount:
+          type: number
+          description: The destination amount of the transaction, e.g. the amount of crypto currency purchased
+        destinationCurrencyCode:
+          type: string
+          description: Three-letter ISO currency code. Must be a supported currency
+        externalCustomerId:
+          type: string
+          description: Your unique identifier for your customer. If maintaining your own customer management system this can also be used for tracking customer activity.
+        externalReferenceId:
+          type: string
+          description: Your optional reference id provided during transaction creation
+        externalSessionId:
+          type: string
+          description: The external Id of the session.
+        externalSubaccountCustomerId:
+          type: string
+          description: Optional external identifier for the sub-account customer this transaction belongs to. Used for tracking when multiple businesses operate under one Meld account. A sub-account customer must be created first before it can be referenced.
+        fiatAmountInUsd:
+          type: number
+          description: The fiat amount of the transaction in usd
+        id:
+          type: string
+          description: Unique identifier for this transaction
+        isImported:
+          type: boolean
+          default: false
+          description: Return ***True*** if this transaction was initiated outside Meld
+        isPassthrough:
+          type: boolean
+          default: false
+          description: Return ***True*** if the passthrough credentials were used
+        key:
+          type: string
+          description: Pagination key, may be used with the "after" parameter in search requests.  Only set and relevant for paginated calls
+        multiFactorAuthorizationStatus:
+          type: array
+          description: The transaction required multi-factor authentication methods, and their current status. When required, must be approved for the purchase tobe completed successfully.
+          items:
+            $ref: '#/components/schemas/MultiFactorAuthorizationStatusOutput'
+          uniqueItems: true
+        orderId:
+          type: string
+          description: Unique identifier for the order associated with this transaction, when applicable
+        parentPaymentTransactionId:
+          type: string
+          description: The Id of the associated object for this line item
+        passthroughReference:
+          type: string
+          description: The unique reference you use to identify the partner on whose behalf you created this transaction.  This might be a String or UUID in your system to identify a merchant or partner.  This is needed so that you can associate passthrough transactions to your partners who may not be registered with Meld
+        paymentDetails:
+          description: payment details
+          allOf:
+          - $ref: '#/components/schemas/PaymentDetails'
+        paymentMethodType:
+          type: string
+          description: Payment Method type used for this transaction.
+        serviceProvider:
+          type: string
+          description: The service provider used for this transaction
+        serviceProviderCreatedAt:
+          type: string
+          format: date-time
+          description: The ISO 8601 DateTime when the transaction was created on the service provider's side
+        serviceProviderDetails:
+          type: object
+          additionalProperties: {}
+          description: The service provider's details
+        serviceProviderTransactionUrl:
+          type: string
+          description: A link to the resource on the Service Provider, may not be present
+        serviceTransactionId:
+          type: string
+          description: The service provider's unique identifier for this transaction
+        sessionClientTags:
+          type: object
+          additionalProperties:
+            type: string
+          description: A map of client tags
+        sessionId:
+          type: string
+          description: The Id of the session.
+        sourceAmount:
+          type: number
+          description: The amount of the transaction
+        sourceCurrencyCode:
+          type: string
+          description: Three-letter ISO currency code. Must be a supported currency
+        status:
+          type: string
+          description: The current status of the transaction
+        subaccountCustomerId:
+          type: string
+          description: Optional Meld customer id used to track the business sub-account this transaction belongs to when multiple businesses operate under one Meld account.
+        transactionType:
+          type: string
+          description: The transaction's type
+        updatedAt:
+          type: string
+          format: date-time
+          description: Time at which the object was last updated. Measured in seconds since the Unix epoch.
+      required:
+      - createdAt
+      - id
+      - serviceProvider
+      - sessionId
+      - status
+      - transactionType
+      - updatedAt
+    CustomerName:
+      type: object
+      properties:
+        firstName:
+          type: string
+          description: Your customer's first name
+        lastName:
+          type: string
+          description: Your customer's last name
+    CustomerAddressDetails: {}
+    SessionDataInputV20231219:
+      type: object
+      description: Data related to the session
+      oneOf:
+      - title: CryptoBuySessionData
+        allOf:
+        - $ref: '#/components/schemas/CryptoBuySessionData'
+      - title: CryptoSellSessionData
+        allOf:
+        - $ref: '#/components/schemas/CryptoSellSessionData'
+      - title: CryptoTransferSessionData
+        allOf:
+        - $ref: '#/components/schemas/CryptoTransferSessionData'
+      properties:
+        clientIpAddress:
+          type: string
+          description: The client's IP address
+        kycInfo:
+          description: Optional KYC information for token passthrough. When provided with a valid KYC token from a supported provider, the verification can be transferred to downstream providers that support it.
+          allOf:
+          - $ref: '#/components/schemas/KycInfo'
+        lockFields:
+          type: array
+          description: Where supported by the Service Provider, Meld can help you lock the cryptocurrency and/or wallet address fields within the widget. Enable this by passing in the "destinationCurrencyCode" and/or "walletAddress" as strings in this field. See [this page](https://docs.meld.io/docs/white-label-cutomization#locking-fields) for more details.
+          items:
+            type: string
+            enum:
+            - cryptoCurrency
+            - destinationCurrencyCode
+            - sourceCurrencyCode
+            - walletAddress
+            - sourceAmount
+            - paymentMethodType
+        redirectUrl:
+          type: string
+          description: The url to redirect to following completion of the widget flow
+        serviceProvider:
+          type: string
+          description: 'The service provider used for this transaction
+
+
+            Reference [Crypto supported service providers](https://www.meld.io/coverage/service-providers) for a full list of supported service providers'
+          enum:
+          - ALCHEMYPAY
+          - BANXA
+          - BILIRA
+          - BINANCECONNECT
+          - BINANCEPAY
+          - BLOCKCHAINDOTCOM
+          - BOOMFI
+          - BTCDIRECT
+          - COINBASEPAY
+          - FONBNK
+          - GUARDARIAN
+          - KRYPTONIM
+          - KOYWE
+          - MESH
+          - MERCURYO
+          - MESO
+          - ONMETA
+          - ONRAMPMONEY
+          - PAYBIS
+          - PAYPAL
+          - RAMP
+          - REVOLUT
+          - ROBINHOOD
+          - SARDINE
+          - SHIFT4
+          - SIMPLEX
+          - SKRILLCRYPTO
+          - STRIPE
+          - SWAPPED
+          - TOPPER
+          - TRANSAK
+          - TRANSFI
+          - UNLIMIT
+          - YELLOWCARD
+        walletTag:
+          type: string
+          description: Your customer's wallet tag/destination tag/memo. This field is required for certain cryptocurrencies.
+      required:
+      - serviceProvider
+    MultiFactorAuthorizationStatusOutput:
+      type: object
+      properties:
+        method:
+          type: string
+          description: How the card details were authorized
+          enum:
+          - SMS
+          - CARD
+          - EMAIL
+          - THREE_DS
+        submitted:
+          type: boolean
+          default: false
+          description: Return ***True*** if the information was submitted
+        successful:
+          type: boolean
+          default: false
+          description: Return ***True*** if the submitted information is a match
+        url:
+          type: string
+          description: URL used to perform authorization (if applicable)
+    PaymentTransactionListResponse20250304:
+      type: object
+      properties:
+        count:
+          type: integer
+          format: int32
+          description: Number of payment transactions returned.
+        remaining:
+          type: integer
+          format: int32
+          description: Number of payment transactions before/after this page, depending the direction this page was selected.
+        totalCount:
+          type: integer
+          format: int32
+          description: Total number of payment transactions.
+        transactions:
+          type: array
+          description: List of transactions
+          items:
+            $ref: '#/components/schemas/SearchedPaymentTransactionOutput20250304'
+    CryptoSellSessionData:
+      type: object
+      properties:
+        clientIpAddress:
+          type: string
+          description: The client's IP address
+        countryCode:
+          type: string
+          description: Two-letter country code (ISO 3166-1 alpha-2)
+          minLength: 1
+        destinationCurrencyCode:
+          type: string
+          description: The fiat currency the customer is selling crypto for (e.g. USD, EUR).
+          minLength: 1
+        kycInfo:
+          description: Optional KYC information for token passthrough. When provided with a valid KYC token from a supported provider, the verification can be transferred to downstream providers that support it.
+          allOf:
+          - $ref: '#/components/schemas/KycInfo'
+        lockFields:
+          type: array
+          description: Where supported by the Service Provider, Meld can help you lock the cryptocurrency and/or wallet address fields within the widget. Enable this by passing in the "destinationCurrencyCode" and/or "walletAddress" as strings in this field. See [this page](https://docs.meld.io/docs/white-label-cutomization#locking-fields) for more details.
+          items:
+            type: string
+            enum:
+            - cryptoCurrency
+            - destinationCurrencyCode
+            - sourceCurrencyCode
+            - walletAddress
+            - sourceAmount
+            - paymentMethodType
+        paymentMethodType:
+          type: string
+          description: 'Payment Method Type
+
+
+            The paymentMethodType and paymentMethodSubType included here are a sample set. Review the [Supported Payment Methods](https://www.meld.io/coverage/payment-methods) section to view the complete list.'
+        redirectFlow:
+          type: boolean
+          default: false
+          description: The user is redirected back to the wallet, and the wallet gets the amount, token, and wallet address to send money to from the SP’s API, then queues up a transfer in the wallet UI and the user just hits confirm
+        redirectUrl:
+          type: string
+          description: The url to redirect to following completion of the widget flow
+        refundWalletAddress:
+          type: string
+          description: Optional wallet address where the swap provider sends refunds if the swap fails. Only applicable for sell+swap (e.g. USDH->USDC->fiat) sessions. Defaults to walletAddress if not provided.
+        serviceProvider:
+          type: string
+          description: 'The service provider used for this transaction
+
+
+            Reference [Crypto supported service providers](https://www.meld.io/coverage/service-providers) for a full list of supported service providers'
+          enum:
+          - ACROSS
+          - AEROPAY
+          - AKOYA
+          - ALCHEMYPAY
+          - APPLEPAY
+          - AUTHORIZENET
+          - BANXA
+          - BILIRA
+          - BINANCECONNECT
+          - BINANCEPAY
+          - BLOCKCHAINDOTCOM
+          - BOOMFI
+          - BRAINTREE
+          - BRALE
+          - BTCDIRECT
+          - CASHAPP
+          - CHECKOUT
+          - CIRCLE
+          - COINBASEPAY
+          - COINFLOW
+          - DUENETWORK
+          - ELDORADO
+          - FINICITY
+          - FLASHNET
+          - FONBNK
+          - GUARDARIAN
+          - HARBOUR
+          - KOYWE
+          - KRYPTONIM
+          - MERCURYO
+          - MESH
+          - MESO
+          - MOONPAY
+          - MOOV
+          - MX
+          - NMI
+          - NOAH
+          - ONMETA
+          - ONRAMPMONEY
+          - PAYBIS
+          - PAYPAL
+          - PLAID
+          - RAMP
+          - REVOLUT
+          - ROBINHOOD
+          - ROUTERPROTOCOL
+          - SALTEDGE
+          - SALTEDGEPARTNERS
+          - SARDINE
+          - SHIFT4
+          - SHOPIFY
+          - SIMPLEX
+          - SKRILLCRYPTO
+          - SQUARE
+          - STRIPE
+          - SUMSUB
+          - SWAPPED
+          - TANGOCARD
+          - TELLER
+          - TOPPER
+          - TRANSAK
+          - TREMENDOUS
+          - TRANSFI
+          - UNLIMIT
+          - UPHOLD
+          - WYRE
+          - XANPOOL
+          - YELLOWCARD
+          - YODLEE
+        sourceAmount:
+          type: string
+          description: The amount of source currency your customer wants tosend in this transaction (e.g., 50.05)
+          minLength: 1
+        sourceCurrencyCode:
+          type: string
+          description: The cryptocurrency the customer is selling (e.g. BTC, ETH).
+          minLength: 1
+        walletAddress:
+          type: string
+          description: Your customer's wallet address. Not required for selling crypto.
+        walletTag:
+          type: string
+          description: Your customer's wallet tag/destination tag/memo. This field is required for certain cryptocurrencies.
+      required:
+      - countryCode
+      - destinationCurrencyCode
+      - serviceProvider
+      - sourceAmount
+      - sourceCurrencyCode
+      title: Sell Crypto
+    PaymentDetails:
+      type: object
+      properties:
+        authAmount:
+          type: number
+          description: The amount authorized to be charged (must be greater than the amount intended to be collected.) Note that the number of digits with a decimal point varies with the currency. Reference the list of active codes of official ISO 4217 currency names.
+        captureAmount:
+          type: number
+          description: The amount captured (can be less than the amount intended to be collected.) Note that the number of digits with a decimal point varies with the currency. Reference the list of active codes of official ISO 4217 currency names.
+    CryptoQuoteResponse20260203:
+      type: object
+      description: Crypto quote response (API version 2026-02-03)
+      properties:
+        quotes:
+          type: array
+          description: List of quotes
+          items:
+            $ref: '#/components/schemas/CryptoQuote20260203'
+    CryptoQuote20260203:
+      type: object
+      description: Crypto quote (API version 2026-02-03)
+      properties:
+        countryCode:
+          type: string
+          description: Two-letter country code (ISO 3166-1 alpha-2)
+        destinationAmount:
+          type: number
+          description: Destination currency amount to be received for this quote
+        destinationAmountWithoutFees:
+          type: number
+          description: The fiat amount exchanged when selling crypto, excluding fees. This will be deprecated in the future.
+        destinationCurrencyCode:
+          type: string
+          description: 'Code of currency being quoted: BTC, ETH, ...'
+        exchangeRate:
+          type: number
+          description: The exchange rate at the time the request is sent
+        fiatAmountWithoutFees:
+          type: number
+          description: The fiat amount exchanged when buying or selling crypto, excluding fees.
+        isNativeAvailable:
+          type: boolean
+          default: false
+          description: Indicates if native Apple Pay flow is available for this quote (Mercuryo specific)
+        networkFee:
+          type: number
+          description: The network fee applied to a crypto transaction. To ensure that transactions are processed on cryptocurrency networks, outgoing transactions to external cryptocurrency addresses typically incur a "mining" or "network" fee. This fee is paid to cryptocurrency miners, which are the systems that process the transactions and secure the respective network.
+        partnerFee:
+          type: number
+          description: The fee amount charged by the partner to process your customer's purchase.
+        paymentMethodType:
+          type: string
+          description: Payment Method Type used for this quote
+          enum:
+          - APPLE_PAY
+          - MASTERCARD
+          - SEPA
+          - VISA
+        rampIntelligence:
+          description: A collection of information on how to rank the quotes returned to you, based on Meld's scoring algorithms. Read more about this [here](https://docs.meld.io/docs/ramp-intelligence).
+          allOf:
+          - $ref: '#/components/schemas/RampIntelligence'
+        serviceProvider:
+          type: string
+          description: Service Provider used on this quote
+          enum:
+          - ALCHEMYPAY
+          - BANXA
+          - BILIRA
+          - BINANCECONNECT
+          - BINANCEPAY
+          - BLOCKCHAINDOTCOM
+          - BOOMFI
+          - BTCDIRECT
+          - COINBASEPAY
+          - FONBNK
+          - GUARDARIAN
+          - KRYPTONIM
+          - KOYWE
+          - MESH
+          - MERCURYO
+          - MESO
+          - ONMETA
+          - ONRAMPMONEY
+          - PAYBIS
+          - PAYPAL
+          - RAMP
+          - REVOLUT
+          - ROBINHOOD
+          - SARDINE
+          - SHIFT4
+          - SIMPLEX
+          - SKRILLCRYPTO
+          - STRIPE
+          - SWAPPED
+          - TOPPER
+          - TRANSAK
+          - TRANSFI
+          - UNLIMIT
+          - YELLOWCARD
+        sourceAmount:
+          type: number
+          description: Amount requested + fees
+        sourceAmountWithoutFees:
+          type: number
+          description: The fiat amount being used to buy crypto, excluding fees. This will be deprecated in the future.
+        sourceCurrencyCode:
+          type: string
+          description: Three-letter ISO currency code. Must be a supported currency
+        totalFee:
+          type: number
+          description: The total amount of fees that will be charged.
+        transactionFee:
+          type: number
+          description: The fee amount charged by the service provider to process your customer's purchase
+        transactionType:
+          type: string
+          description: The type of crypto transaction, which is CRYPTO_PURCHASE or CRYPTO_SELL.
+    RampIntelligence:
+      type: object
+      description: 'Ramp intelligence: ramp score and low KYC indicator for the quote'
+      properties:
+        lowKyc:
+          type: boolean
+          default: false
+          description: LowKYC indicates if the quote amount is below the provider's low KYC threshold, meaning the user may not need to upload documents, which can increase conversion. Read more about this feature [here](https://docs.meld.io/docs/conversion-routing).
+        previouslyUsed:
+          type: string
+          format: date-time
+          description: Timestamp of previously successful purchase for this customer on this ramp
+        rampScore:
+          type: number
+          description: A numerical score representing the expectation a Customer will convert (Ramp score). Read more about this feature [here](https://docs.meld.io/docs/conversion-routing).
+    KycInfo:
+      type: object
+      description: KYC verification information for token passthrough
+      properties:
+        kycProvider:
+          type: string
+          description: The KYC provider that issued the token
+          enum:
+          - SUMSUB
+          example: SUMSUB
+        kycShareToken:
+          type: string
+          description: The shareable KYC token from the KYC provider (e.g., Sumsub share token). This token can be used to transfer verified KYC status to downstream providers. Required when kycProvider is specified.
+          example: _act-sbx-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+    CryptoDetails20250304:
+      type: object
+      properties:
+        blockchainTransactionId:
+          type: string
+          description: The transaction id on the blockchain
+        chainId:
+          type: string
+          description: A unique identifier that represents a blockchain network. The chainId of a particular network is standard everywhere.
+        destinationWalletAddress:
+          type: string
+          description: The wallet address that the crypto is sent to. This is usually the user's wallet address for buy and transfer transactions, and the onramp's wallet address for sell transactions.
+        institution:
+          type: string
+          description: The institution used to execute the transaction. Only applicable for transfers currently.
+        networkFee:
+          type: number
+          description: This fee is paid to cryptocurrency miners, which are the systems that process the transactions
+        networkFeeInUsd:
+          type: number
+          description: This network fee in USD
+        partnerFee:
+          type: number
+          description: The partner fee amount
+        partnerFeeInUsd:
+          type: number
+          description: The partner fee in USD
+        sessionWalletAddress:
+          type: string
+          description: The wallet address passed into the /widget endpoint, typically of the user. This will often be the same as either the sourceWalletAddress or the destinationWalletAddress.
+        sourceWalletAddress:
+          type: string
+          description: The wallet address that the crypto comes from. This is usually the onramp's wallet address for buy transactions, and the user's wallet address for transfer and sell transactions.
+        swapFee:
+          type: number
+          description: The swap fee amount charged by the swap provider for ramp+swap transactions
+        swapFeeInUsd:
+          type: number
+          description: The swap fee in USD
+        totalFee:
+          type: number
+          description: The total amount of fees that will be charged
+        totalFeeInUsd:
+          type: number
+          description: The total fee in USD
+        transactionFee:
+          type: number
+          description: The fee amount charged by the service provider to process your customer's purchase
+        transactionFeeInUsd:
+          type: number
+          description: The transaction fee in USD
+    SessionTokenForWidgetRequestV20231219:
+      type: object
+      properties:
+        bypassKyc:
+          type: boolean
+          default: false
+          description: When true, the system will automatically look up the customer's KYC status and generate a share token if KYC is approved. Requires a valid customerId or externalCustomerId.
+        customerId:
+          type: string
+          description: Meld generated unique identifier for your customer. This should be used to track customer activity.
+        externalCustomerId:
+          type: string
+          description: Your unique identifier for your customer. If maintaining your own customer management system this can also be used for tracking customer activity.
+        externalSessionId:
+          type: string
+          description: Your reference id for your widget session, if you use this optional field you must pass in a unique value each time
+        externalSubaccountCustomerId:
+          type: string
+          description: Optional external identifier for the sub-account customer this transaction belongs to. Used for tracking when multiple businesses operate under one Meld account. A sub-account customer must be created first before it can be referenced.
+        sessionData:
+          description: Data related to the session
+          allOf:
+          - $ref: '#/components/schemas/SessionDataInputV20231219'
+        sessionType:
+          type: string
+          description: The type of widget session to create
+          enum:
+          - BUY
+          - SELL
+          - TRANSFER
+        subaccountCustomerId:
+          type: string
+          description: Optional Meld customer id used to track the business sub-account this transaction belongs to when multiple businesses operate under one Meld account.
+      required:
+      - sessionData
+      - sessionType
+    CustomerAddressOutput:
+      type: object
+      properties:
+        addressDetails:
+          description: Address details
+          allOf:
+          - $ref: '#/components/schemas/CustomerAddressDetails'
+        type:
+          type: string
+          description: Address type such as BILLING, SHIPPING, RESIDENCE, etc.
+          enum:
+          - BILLING
+          - SHIPPING
+          - RESIDENCE
+    CryptoTransferSessionData:
+      type: object
+      properties:
+        clientIpAddress:
+          type: string
+          description: The client's IP address
+        countryCode:
+          type: string
+          description: Two-letter country code (ISO 3166-1 alpha-2)
+        institutionId:
+          type: string
+          description: If provided, the institution to bypass the institution selection screen in the service provider's widget. Currently this is only supported for MESH widget sessions.
+        kycInfo:
+          description: Optional KYC information for token passthrough. When provided with a valid KYC token from a supported provider, the verification can be transferred to downstream providers that support it.
+          allOf:
+          - $ref: '#/components/schemas/KycInfo'
+        lockFields:
+          type: array
+          description: Where supported by the Service Provider, Meld can help you lock the cryptocurrency and/or wallet address fields within the widget. Enable this by passing in the "destinationCurrencyCode" and/or "walletAddress" as strings in this field. See [this page](https://docs.meld.io/docs/white-label-cutomization#locking-fields) for more details.
+          items:
+            type: string
+            enum:
+            - cryptoCurrency
+            - destinationCurrencyCode
+            - sourceCurrencyCode
+            - walletAddress
+            - sourceAmount
+            - paymentMethodType
+        redirectUrl:
+          type: string
+          description: The url to redirect to following completion of the widget flow
+        serviceProvider:
+          type: string
+          description: 'The service provider used for this transaction
+
+
+            Reference [Crypto supported service providers](https://www.meld.io/coverage/service-providers) for a full list of supported service providers'
+          enum:
+          - ACROSS
+          - AEROPAY
+          - AKOYA
+          - ALCHEMYPAY
+          - APPLEPAY
+          - AUTHORIZENET
+          - BANXA
+          - BILIRA
+          - BINANCECONNECT
+          - BINANCEPAY
+          - BLOCKCHAINDOTCOM
+          - BOOMFI
+          - BRAINTREE
+          - BRALE
+          - BTCDIRECT
+          - CASHAPP
+          - CHECKOUT
+          - CIRCLE
+          - COINBASEPAY
+          - COINFLOW
+          - DUENETWORK
+          - ELDORADO
+          - FINICITY
+          - FLASHNET
+          - FONBNK
+          - GUARDARIAN
+          - HARBOUR
+          - KOYWE
+          - KRYPTONIM
+          - MERCURYO
+          - MESH
+          - MESO
+          - MOONPAY
+          - MOOV
+          - MX
+          - NMI
+          - NOAH
+          - ONMETA
+          - ONRAMPMONEY
+          - PAYBIS
+          - PAYPAL
+          - PLAID
+          - RAMP
+          - REVOLUT
+          - ROBINHOOD
+          - ROUTERPROTOCOL
+          - SALTEDGE
+          - SALTEDGEPARTNERS
+          - SARDINE
+          - SHIFT4
+          - SHOPIFY
+          - SIMPLEX
+          - SKRILLCRYPTO
+          - SQUARE
+          - STRIPE
+          - SUMSUB
+          - SWAPPED
+          - TANGOCARD
+          - TELLER
+          - TOPPER
+          - TRANSAK
+          - TREMENDOUS
+          - TRANSFI
+          - UNLIMIT
+          - UPHOLD
+          - WYRE
+          - XANPOOL
+          - YELLOWCARD
+          - YODLEE
+        sourceAmount:
+          type: string
+          description: The amount of source currency your customer wants totransfer (e.g., 50.05). It only applies if one source currency code is passed in.
+        sourceCurrencyCodes:
+          type: array
+          description: Allowable crypto currencies for the customer to transfer (e.g. BTC, ETH). If the currency to transfer is already known, then this list should be singular and the customer will not have the option to select a different crypto currency in the service provider's widget. Alternatively, if the currency to transfer is not yet known and it is desired that the customer select it themselves in the service provider widget, then this list will restrict which crypto currencies are made available. However, this latter option of passing in multiple currencies is only supported by select service providers (MESH, ROBINHOOD). At least one currency must be passed in. The accompanying sourceAmount field should only be present if a single crypto currency is passed in.
+          items:
+            type: string
+          minItems: 1
+          uniqueItems: true
+        walletAddress:
+          type: string
+          description: Your customer's wallet address
+        walletTag:
+          type: string
+          description: Your customer's wallet tag/destination tag/memo. This field is required for certain cryptocurrencies.
+      required:
+      - countryCode
+      - serviceProvider
+      - sourceCurrencyCodes
+      title: Transfer Crypto
+    CryptoBuySessionData:
+      type: object
+      properties:
+        clientIpAddress:
+          type: string
+          description: The client's IP address
+        countryCode:
+          type: string
+          description: Two-letter country code (ISO 3166-1 alpha-2)
+          default: US
+        destinationCurrencyCode:
+          type: string
+          description: The cryptocurrency the customer is buying (e.g. BTC, ETH).
+          minLength: 1
+          default: BTC
+        institutionId:
+          type: string
+          description: If provided, the institution to bypass the institution selection screen in the service provider's widget. Currently this is only supported for MESH widget sessions.
+        kycInfo:
+          description: Optional KYC information for token passthrough. When provided with a valid KYC token from a supported provider, the verification can be transferred to downstream providers that support it.
+          allOf:
+          - $ref: '#/components/schemas/KycInfo'
+        lockFields:
+          type: array
+          description: Where supported by the Service Provider, Meld can help you lock the cryptocurrency and/or wallet address fields within the widget. Enable this by passing in the "destinationCurrencyCode" and/or "walletAddress" as strings in this field. See [this page](https://docs.meld.io/docs/white-label-cutomization#locking-fields) for more details.
+          items:
+            type: string
+            enum:
+            - cryptoCurrency
+            - destinationCurrencyCode
+            - sourceCurrencyCode
+            - walletAddress
+            - sourceAmount
+            - paymentMethodType
+        paymentMethodType:
+          type: string
+          description: 'Payment Method Type
+
+
+            The paymentMethodType and paymentMethodSubType included here are a sample set. Review the [Supported Payment Methods](https://www.meld.io/coverage/payment-methods) section to view the complete list.'
+        redirectUrl:
+          type: string
+          description: The url to redirect to following completion of the widget flow
+        refundWalletAddress:
+          type: string
+          description: Optional wallet address where the swap provider sends refunds if the swap fails. Only applicable for ramp+swap (e.g. fiat->USDC->USDH) sessions.
+        serviceProvider:
+          type: string
+          description: 'The service provider used for this transaction
+
+
+            Reference [Crypto supported service providers](https://www.meld.io/coverage/service-providers) for a full list of supported service providers'
+          enum:
+          - ACROSS
+          - AEROPAY
+          - AKOYA
+          - ALCHEMYPAY
+          - APPLEPAY
+          - AUTHORIZENET
+          - BANXA
+          - BILIRA
+          - BINANCECONNECT
+          - BINANCEPAY
+          - BLOCKCHAINDOTCOM
+          - BOOMFI
+          - BRAINTREE
+          - BRALE
+          - BTCDIRECT
+          - CASHAPP
+          - CHECKOUT
+          - CIRCLE
+          - COINBASEPAY
+          - COINFLOW
+          - DUENETWORK
+          - ELDORADO
+          - FINICITY
+          - FLASHNET
+          - FONBNK
+          - GUARDARIAN
+          - HARBOUR
+          - KOYWE
+          - KRYPTONIM
+          - MERCURYO
+          - MESH
+          - MESO
+          - MOONPAY
+          - MOOV
+          - MX
+          - NMI
+          - NOAH
+          - ONMETA
+          - ONRAMPMONEY
+          - PAYBIS
+          - PAYPAL
+          - PLAID
+          - RAMP
+          - REVOLUT
+          - ROBINHOOD
+          - ROUTERPROTOCOL
+          - SALTEDGE
+          - SALTEDGEPARTNERS
+          - SARDINE
+          - SHIFT4
+          - SHOPIFY
+          - SIMPLEX
+          - SKRILLCRYPTO
+          - SQUARE
+          - STRIPE
+          - SUMSUB
+          - SWAPPED
+          - TANGOCARD
+          - TELLER
+          - TOPPER
+          - TRANSAK
+          - TREMENDOUS
+          - TRANSFI
+          - UNLIMIT
+          - UPHOLD
+          - WYRE
+          - XANPOOL
+          - YELLOWCARD
+          - YODLEE
+          default: TRANSAK
+        sourceAmount:
+          type: string
+          description: The amount of source currency your customer wants tosend in this transaction (e.g., 50.05)
+          minLength: 1
+          default: '100'
+        sourceCurrencyCode:
+          type: string
+          description: The fiat currency the user is buying crypto with (e.g. USD, EUR).
+          minLength: 1
+          default: USD
+        walletAddress:
+          type: string
+          description: Your customer's wallet address
+          minLength: 1
+          default: 1EEo4ioA4spdJ2ZxiSQ1hWsp3Ve81ZRZ2F
+        walletTag:
+          type: string
+          description: Your customer's wallet tag/destination tag/memo. This field is required for certain cryptocurrencies.
+      required:
+      - countryCode
+      - destinationCurrencyCode
+      - serviceProvider
+      - sourceAmount
+      - sourceCurrencyCode
+      - walletAddress
+      title: Buy Crypto
+    CryptoQuoteRequest:
+      type: object
+      properties:
+        countryCode:
+          type: string
+          description: Two-letter country code (ISO 3166-1 alpha-2)
+          example: US
+          default: US
+        customerId:
+          type: string
+          description: Meld generated unique identifier for your customer. This should be used to track customer activity.
+        destinationCurrencyCode:
+          type: string
+          description: Enter a cryptocurrency symbol here if purchasing crypto or a fiat currency 3 letter code if selling crypto.
+          example: USD or BTC
+          minLength: 1
+          default: BTC
+        externalCustomerId:
+          type: string
+          description: Your unique identifier for your customer. If maintaining your own customer management system this can also be used for tracking customer activity.
+        paymentMethodType:
+          type: string
+          description: 'Payment Method Type or SubType
+
+
+            The paymentMethodType and paymentMethodSubType included here are a sample set. Review the [Supported Payment Methods](https://www.meld.io/coverage/payment-methods) section to view the complete list.'
+        serviceProviders:
+          type: array
+          description: 'An optional list of Strings representing the Service Providers for this Quote.
+
+
+            Reference [Crypto supported service providers](https://www.meld.io/coverage/service-providers) for a full list of supported service providers
+
+
+            If this field is null or an empty list, Meld will get quotes from all the service providers linked to the API key used on the request.'
+          items:
+            type: string
+            enum:
+            - ACROSS
+            - AEROPAY
+            - AKOYA
+            - ALCHEMYPAY
+            - APPLEPAY
+            - AUTHORIZENET
+            - BANXA
+            - BILIRA
+            - BINANCECONNECT
+            - BINANCEPAY
+            - BLOCKCHAINDOTCOM
+            - BOOMFI
+            - BRAINTREE
+            - BRALE
+            - BTCDIRECT
+            - CASHAPP
+            - CHECKOUT
+            - CIRCLE
+            - COINBASEPAY
+            - COINFLOW
+            - DUENETWORK
+            - ELDORADO
+            - FINICITY
+            - FLASHNET
+            - FONBNK
+            - GUARDARIAN
+            - HARBOUR
+            - KOYWE
+            - KRYPTONIM
+            - MERCURYO
+            - MESH
+            - MESO
+            - MOONPAY
+            - MOOV
+            - MX
+            - NMI
+            - NOAH
+            - ONMETA
+            - ONRAMPMONEY
+            - PAYBIS
+            - PAYPAL
+            - PLAID
+            - RAMP
+            - REVOLUT
+            - ROBINHOOD
+            - ROUTERPROTOCOL
+            - SALTEDGE
+            - SALTEDGEPARTNERS
+            - SARDINE
+            - SHIFT4
+            - SHOPIFY
+            - SIMPLEX
+            - SKRILLCRYPTO
+            - SQUARE
+            - STRIPE
+            - SUMSUB
+            - SWAPPED
+            - TANGOCARD
+            - TELLER
+            - TOPPER
+            - TRANSAK
+            - TREMENDOUS
+            - TRANSFI
+            - UNLIMIT
+            - UPHOLD
+            - WYRE
+            - XANPOOL
+            - YELLOWCARD
+            - YODLEE
+        sourceAmount:
+          type: number
+          description: The source amount for this transaction.
+          example: 50
+          minimum: 0.0
+          default: 100
+        sourceCurrencyCode:
+          type: string
+          description: Enter a fiat currency 3 letter code here if purchasing crypto or a cryptocurrency symbol if selling crypto.
+          example: BTC or USD
+          minLength: 1
+          default: USD
+        subdivision:
+          type: string
+          description: subdivision is a optional parameter Only applicable if the country code is US or CA.
+          example: US-CA
+        walletAddress:
+          type: string
+          description: Your customer's wallet address
+      required:
+      - countryCode
+      - destinationCurrencyCode
+      - sourceAmount
+      - sourceCurrencyCode
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      x-default: BASIC <Meld API Key>
+    BasicAuth:
+      type: http
+      scheme: basic
+x-readme:
+  explorer-enabled: true
+  proxy-enabled: false
+  samples-enabled: true
+  headers:
+  - key: Meld-Version
+    value: '2026-02-03'
